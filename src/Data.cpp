@@ -2,10 +2,11 @@
 #include "Sphere.h"
 #include "Plane.h"
 
-void init_sphere_pov(std::vector<Shape *> *objects, Camera **camera, LightSource **light)
+void init_sphere_pov(std::vector<Shape *> *objects, Camera **camera, std::vector<LightSource *> *lights)
 {
    *camera = new Camera(vec3(0, 0, 14), vec3(0, 1, 0), vec3(1.33333, 0, 0), vec3(0, 0, 0));
-   *light = new LightSource(vec3(-100, 100, 100), vec3(1.5, 1.5, 1.5));
+   LightSource *light = new LightSource(vec3(-100, 100, 100), vec3(1.5, 1.5, 1.5));
+   lights->push_back(light);
 
    properties *little_props = new properties{0.2, 0.4, 0, 0, 0, 0, 0};
    Sphere *little = new Sphere(vec3(0, 0, 0), 1.01, vec3(1, 1, 1), little_props);
@@ -25,10 +26,11 @@ void init_sphere_pov(std::vector<Shape *> *objects, Camera **camera, LightSource
    objects->push_back(left);
 }
 
-void init_simple_pov(std::vector<Shape *> *objects, Camera **camera, LightSource **light)
+void init_simple_pov(std::vector<Shape *> *objects, Camera **camera, std::vector<LightSource *> *lights)
 {
   *camera = new Camera(vec3(0, 0, 14), vec3(0, 1, 0), vec3(1.33333, 0, 0), vec3(0, 0, 0));
-  *light = new LightSource(vec3(-100, 100, 100), vec3(1.5, 1.5, 1.5));
+  LightSource *light = new LightSource(vec3(-100, 100, 100), vec3(1.5, 1.5, 1.5));
+  lights->push_back(light);
 
   properties *simple_props = new properties{0.2, 0.4, 0, 0, 0, 0, 0};
 	Sphere *simple = new Sphere(vec3(0, 0, 0), 2, vec3(1, 0, 1), simple_props);
@@ -40,28 +42,30 @@ void init_simple_pov(std::vector<Shape *> *objects, Camera **camera, LightSource
   objects->push_back(simple_plane);
 }
 
-void init_simple_cam_pov(std::vector<Shape *> *objects, Camera **camera, LightSource **light, int option)
+void init_simple_cam_pov(std::vector<Shape *> *objects, Camera **camera, std::vector<LightSource *> *lights, int option)
 {
+  LightSource *light;
   if (option == 0) // Look down -z axis
   {
     *camera = new Camera(vec3(0, 0, 14), vec3(0, 1, 0), vec3(1.33333, 0, 0), vec3(0, 0, 0));
-    *light = new LightSource(vec3(-100, 100, 100), vec3(1.5, 1.5, 1.5));
+    light = new LightSource(vec3(-100, 100, 100), vec3(1.5, 1.5, 1.5));
   }
   else if (option == 1) // Look down +x axis
   {
     *camera = new Camera(vec3(-14, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1.33333), vec3(0, 0, 0));
-    *light = new LightSource(vec3(-100, 100, 100), vec3(1.5, 1.5, 1.5));
+    light = new LightSource(vec3(-100, 100, 100), vec3(1.5, 1.5, 1.5));
   }
   else if (option == 2) // Look down -x axis
   {
     *camera = new Camera(vec3(14, 0, 0), vec3(0, 1, 0), vec3(0, 0, -1.33333), vec3(0, 0, 0));
-    *light = new LightSource(vec3(-100, 100, 100), vec3(1.5, 1.5, 1.5));
+    light = new LightSource(vec3(-100, 100, 100), vec3(1.5, 1.5, 1.5));
   }
   else if (option == 3)
   {
     *camera = new Camera(vec3(7, 0, 7), vec3(0, 1, 0), vec3(0.94, 0, -0.94), vec3(0, 0, 0));
-    *light = new LightSource(vec3(-100, 100, 100), vec3(1.5, 1.5, 1.5));
+    light = new LightSource(vec3(-100, 100, 100), vec3(1.5, 1.5, 1.5));
   }
+  lights->push_back(light);
 
   properties *s1_props = new properties{0.2, 0.4, 0.1, 0.1, 0, 0, 0};
   Sphere *s1 = new Sphere(vec3(-3.5, 0, 0), 1, vec3(1, 0, 1), s1_props);

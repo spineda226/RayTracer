@@ -53,15 +53,15 @@ int main(int argc, char **argv)
     // Scene Object List
    vector<Shape *> objects;
    Camera *camera;
-   LightSource *light;
+   vector<LightSource *> lights;
 
    //init_sphere_pov(&objects, &camera, &light);
    //init_simple_pov(&objects, &camera, &light);
-   init_simple_cam_pov(&objects, &camera, &light, 2);
+   init_simple_cam_pov(&objects, &camera, &lights, 2);
 
    if (testMode)
-      single_raytrace(g_width, g_height, test_x, test_y, objects, *camera, *light);
+      single_raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);
    else
-      raytrace(g_width, g_height, test_x, test_y, objects, *camera, *light);
+      raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);
    return 0;
 }

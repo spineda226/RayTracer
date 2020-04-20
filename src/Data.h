@@ -16,8 +16,8 @@ struct properties {
    float ior;
  };
 
-void init_sphere_pov(std::vector<Shape *> *objects, Camera **camera, LightSource **light);
-void init_simple_pov(std::vector<Shape *> *objects, Camera **camera, LightSource **light);
-void init_simple_cam_pov(std::vector<Shape *> *objects, Camera **camera, LightSource **light, int option);
+void init_sphere_pov(std::vector<Shape *> *objects, Camera **camera, std::vector<LightSource *> *lights);
+void init_simple_pov(std::vector<Shape *> *objects, Camera **camera, std::vector<LightSource *> *lights);
+void init_simple_cam_pov(std::vector<Shape *> *objects, Camera **camera, std::vector<LightSource *> *lights, int option);
 
 #endif
