@@ -1,6 +1,7 @@
 #include "Data.h"
 #include "Sphere.h"
 #include "Plane.h"
+#include "Triangle.h"
 
 void init_sphere_pov(std::vector<Shape *> *objects, Camera **camera, std::vector<LightSource *> *lights)
 {
@@ -90,6 +91,38 @@ void init_simple_cam_pov(std::vector<Shape *> *objects, Camera **camera, std::ve
   objects->push_back(s3);
   objects->push_back(s4);
   objects->push_back(s5);
+  objects->push_back(simple_plane);
+}
+
+void init_simple_tri_pov(std::vector<Shape *> *objects, Camera **camera, std::vector<LightSource *> *lights)
+{
+  *camera = new Camera(vec3(0, 0, 7), vec3(0, 1, 0), vec3(1.33333, 0, 0), vec3(0, 0, 0));
+  LightSource *light = new LightSource(vec3(-100, 100, 100), vec3(1.5, 1.5, 1.5));
+  lights->push_back(light);
+
+  properties *t1_props = new properties{0.3, 0.4, 0, 0, 0, 0, 0};
+  Triangle *t1 = new Triangle(vec3(-0.001, 1, 0),  vec3(-0.001, -0.3, 3), vec3(1, -0.3, 0),
+                              vec3(0.65, 0.4, 0.4), t1_props);
+
+  properties *t2_props = new properties{0.3, 0.4, 0, 0, 0, 0, 0};
+  Triangle *t2 = new Triangle(vec3(0, 1, 0),  vec3(-1, -0.3, 0), vec3(0, -0.3, 3),
+                              vec3(0.65, 0.4, 0.4), t2_props);
+
+  properties *t3_props = new properties{0.3, 0.4, 0, 0, 0, 0, 0};
+  Triangle *t3 = new Triangle(vec3(-1, -0.3, 0),  vec3(0, -1.3, 0), vec3(0, -0.3, 3),
+                              vec3(0.65, 0.4, 0.4), t3_props);
+
+  properties *t4_props = new properties{0.3, 0.4, 0, 0, 0, 0, 0};
+  Triangle *t4 = new Triangle(vec3(0, -0.3, 2),  vec3(0, -1.3, 0), vec3(1, -0.3, 0),
+                              vec3(0.65, 0.4, 0.4), t4_props);
+  
+  properties *plane_props = new properties{0.3, 0.8, 0, 0, 0, 0, 0};
+  Plane *simple_plane = new Plane(vec3(0, 1, 0), -4, vec3(0.2, 0.2, 0.8), plane_props);
+  
+  objects->push_back(t1);
+  objects->push_back(t2);
+  objects->push_back(t3);
+  objects->push_back(t4);
   objects->push_back(simple_plane);
 }
 

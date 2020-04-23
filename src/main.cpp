@@ -21,6 +21,7 @@
 #include "Plane.h"
 #include "Data.h"
 #include "Raytrace.h"
+#include "Triangle.h"
 
 // This allows you to skip the `std::` in front of C++ standard library
 // functions. You can also say `using std::cout` to be more selective.
@@ -50,18 +51,22 @@ int main(int argc, char **argv)
       test_y = atoi(argv[5]);
    }
    
-    // Scene Object List
+   // Scene Object List
    vector<Shape *> objects;
    Camera *camera;
    vector<LightSource *> lights;
 
+   // Parse the file
+   //Parse::parse_file("../resource/simple.pov", &objects, &camera, &lights);
+
    //init_sphere_pov(&objects, &camera, &light);
    //init_simple_pov(&objects, &camera, &light);
-   init_simple_cam_pov(&objects, &camera, &lights, 2);
+   //init_simple_cam_pov(&objects, &camera, &lights, 2);
+   //init_simple_tri_pov(&objects, &camera, &lights);
 
-   if (testMode)
-      single_raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);
-   else
-      raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);
+   //if (testMode)
+   //   single_raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);
+   //else
+   //   raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);
    return 0;
 }
