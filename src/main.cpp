@@ -8,6 +8,7 @@
 #include "tiny_obj_loader.h"
 #include "Image.h"
 
+#include "Parse.h"
 #include "Point.h"
 #include "Shape.h"
 #include "Sphere.h"
@@ -57,8 +58,26 @@ int main(int argc, char **argv)
    vector<LightSource *> lights;
 
    // Parse the file
-   //Parse::parse_file("../resource/simple.pov", &objects, &camera, &lights);
+   Parse::parse_file("../resources/simple.pov", &objects, &camera, &lights);
 
+   /*
+   stringstream s;
+   vec3 v;
+
+   s.str("<3.0>");
+   v = Parse::Vector(s);
+   cout << v.x << " " << v.y << " " << v.z << endl;
+
+   s.str("<3.0, 1.0, 2.0>");
+   v = Parse::Vector(s);
+   cout << v.x << " " << v.y << " " << v.z << endl;
+
+   s.str("<3.0, 1.0 2.0>");
+   v = Parse::Vector(s);
+   cout << v.x << " " << v.y << " " << v.z << endl;
+
+   */
+   return 0;
    //init_sphere_pov(&objects, &camera, &light);
    //init_simple_pov(&objects, &camera, &light);
    //init_simple_cam_pov(&objects, &camera, &lights, 2);
