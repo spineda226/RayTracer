@@ -5,8 +5,7 @@
 Plane::Plane(vec3 normal, float distance, vec3 color, properties *finish) :
    normal(normal),
    distance(distance),
-   color(color),
-   finish(finish)
+   Shape(color, finish)
 {
 }
 

@@ -8,12 +8,21 @@
 class Shape
 {
    public:
-      Shape() {};
+      Shape();
+      Shape(vec3 color, properties *finish) : color(color), finish(finish) {}
       ~Shape() {};
       virtual int getClosestIntersection(Ray &ray) = 0;
-      virtual glm::vec3 getColor() = 0;
-      virtual properties *getFinish() = 0;
       virtual glm::vec3 getNormal(const glm::vec3 &point) = 0;
+
+      vec3 getColor() const { return color; }
+      void setColor(vec3 c) { color = c; }
+      properties *getFinish() const { return finish; }
+      void setProperties(properties *f) { finish = f; }
+
+   private:
+      vec3 color;
+      properties *finish;
+
 };
 
 #endif

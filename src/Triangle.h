@@ -12,14 +12,13 @@ using namespace glm;
 class Triangle : public Shape
 {
    public:
+      Triangle(vec3 p1, vec3 p2, vec3 p3) : Shape(), p1(p1), p2(p2), p3(p3) {}
       Triangle(vec3 p1, vec3 p2, vec3 p3, vec3 color, properties *finish);
       ~Triangle() {};
 
       vec3 getP1() const { return p1; }
       vec3 getP2() const { return p2; }
       vec3 getP3() const { return p3; }
-      vec3 getColor() override { return color; }
-      properties *getFinish() override { return finish; }
 
       float computeGamma(vec3 &p0, vec3 &d, float detA);
       float computeBeta(vec3 &p0, vec3 &d, float detA);
@@ -29,8 +28,7 @@ class Triangle : public Shape
       int getClosestIntersection(Ray &ray) override;
 
    private:
-      vec3 p1, p2, p3, color;
-      properties *finish;
+      vec3 p1, p2, p3;
 };
 
 float calcualteDeterminant(vec3 &row1, vec3 &row2, vec3 &row3);

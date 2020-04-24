@@ -1,12 +1,29 @@
 #include "Sphere.h"
 #include <iostream>
+#include "Parse.h"
+#include <string.h>
+#include <sstream>
+#include <stdlib.h> //strtof
 
 Sphere::Sphere(vec3 center, float radius, vec3 color, properties *finish) :
+   Shape(color, finish),
    center(center),
-   radius(radius),
-   color(color),
-   finish(finish)
+   radius(radius)
 {
+}
+
+Sphere *Sphere::parse(std::ifstream &infile, std::stringstream &s)
+{
+	std::string r, line;
+	std::cout << "parsing sphere" << std::endl;
+	vec3 center = Parse::Vector(s);
+	s.ignore(std::numeric_limits<std::streamsize>::max(), ',');
+	s >> r;
+	float radius = strtof(r.c_str(), NULL);
+	std::cout << "Radius: " << radius << std::endl;
+	Sphere *sphere = new Sphere(center, radius);
+	Parse::Modifiers(sphere, infile);
+	return sphere;
 }
 
 // Solve the quadratic formula and return the smallest positive solution

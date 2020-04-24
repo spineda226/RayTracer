@@ -77,15 +77,16 @@ int main(int argc, char **argv)
    cout << v.x << " " << v.y << " " << v.z << endl;
 
    */
-   return 0;
-   //init_sphere_pov(&objects, &camera, &light);
+   //init_sphere_pov(&objects, &camera, &lights);
    //init_simple_pov(&objects, &camera, &light);
    //init_simple_cam_pov(&objects, &camera, &lights, 2);
    //init_simple_tri_pov(&objects, &camera, &lights);
 
-   //if (testMode)
-   //   single_raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);
-   //else
-   //   raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);
+   /*
+   if (testMode)
+      single_raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);
+   else
+      raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);
    return 0;
+   */
 }

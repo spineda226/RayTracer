@@ -2,7 +2,7 @@
 #include <iostream>
 
 Triangle::Triangle(vec3 p1, vec3 p2, vec3 p3, vec3 color, properties *finish) :
-   p1(p1), p2(p2), p3(p3), color(color), finish(finish)
+   p1(p1), p2(p2), p3(p3), Shape(color, finish)
 {
 }
 

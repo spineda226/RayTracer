@@ -1,5 +1,6 @@
 
 #include "Parse.h"
+#include "Sphere.h"
 #include <iostream>
 #include <fstream>
 #include <limits>
@@ -35,7 +36,7 @@ void Parse::parse_file(string filename, std::vector<Shape *> *objects, Camera **
 		}
 		else if (strcmp(firstword, "sphere") == 0)
 		{
-			cout << "sphere" << endl;
+			objects->push_back(Sphere::parse(infile, s));
 		}
 		else if (strcmp(firstword, "plane") == 0)
 		{
@@ -74,5 +75,40 @@ vec3 Parse::Vector(stringstream & Stream)
 	}
 	return v;
 
+}
+
+void Parse::Modifiers(Shape *shape, ifstream &infile)
+{
+	stringstream s;
+	string word, line;
+	getline(infile, line);
+	s.str(line);
+	s >> word;
+	const char *firstword = word.c_str();
+	while (strcmp(firstword, "}")) // keep looping until you read  '}'
+	{
+		cout << "parse modifier word: " << firstword << endl;
+		if (strcmp(firstword, "pigment") == 0)
+			Parse::Pigment(shape, s);
+		else if (strcmp(firstword, "finish") == 0)
+			Parse::Finish(shape, s);
+		getline(infile, line);
+		s.clear();
+		s.str(line);
+		s >> word;
+		firstword = word.c_str();
+	}
+}
+
+void Parse::Pigment(Shape *shape, stringstream &s)
+{
+	cout << "parsing pigment" << endl;
+	shape->setColor(Parse::Vector(s));
+}
+
+void Parse::Finish(Shape *shape, stringstream &s)
+{
+	cout << "parsing finish" << endl;
+	//shape->setColor(Parse::Vector(s));
 }
 
