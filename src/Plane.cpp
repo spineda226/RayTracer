@@ -1,12 +1,30 @@
 #include <iostream>
 #include "Plane.h"
 #include "Intersection.h"
+#include "Parse.h"
+#include <string.h>
+#include <sstream>
+#include <stdlib.h> //strtof
 
 Plane::Plane(vec3 normal, float distance, vec3 color, properties *finish) :
    normal(normal),
    distance(distance),
    Shape(color, finish)
 {
+}
+
+Plane *Plane::parse(std::ifstream &infile, std::stringstream &s)
+{
+	std::string d, line;
+	//std::cout << "parsing plane" << std::endl;
+	vec3 normal = Parse::Vector(s);
+	s.ignore(std::numeric_limits<std::streamsize>::max(), ',');
+	s >> d;
+	float distance = strtof(d.c_str(), NULL);
+	//std::cout << "distance: " << distance << std::endl;
+	Plane *plane = new Plane(normal, distance);
+	Parse::Modifiers(plane, infile);
+	return plane;
 }
 
 // return -1 if no intersection

@@ -1,10 +1,13 @@
 
 #include "Parse.h"
 #include "Sphere.h"
+#include "Plane.h"
+#include "Triangle.h"
 #include <iostream>
 #include <fstream>
 #include <limits>
 #include <string.h>
+#include <stdlib.h> //strtof
 using namespace std;
 
 void Parse::parse_file(string filename, std::vector<Shape *> *objects, Camera **camera, std::vector<LightSource *> *lights)
@@ -12,46 +15,37 @@ void Parse::parse_file(string filename, std::vector<Shape *> *objects, Camera **
 	stringstream s;
 	string word;
 	string line;
-	//stringstream s;
 	ifstream infile(filename);
+	if (infile.fail())
+	{
+		cerr << "file not found: " << filename << endl;
+		exit(EXIT_FAILURE);
+	}
 	while (getline(infile, line)) {
 		s.clear();
 		s.str(line); // creates a stream from the line 
-		//s.get(buf, ' '); // puts chracters before the first space into buf
 		s >> word;
 		const char *firstword = word.c_str();
-		cout << "FIRST WORD: " << firstword << endl;
+		//cout << "FIRST WORD: " << firstword << endl;
 		if (strcmp(firstword, "//") == 0 || strcmp(firstword, "") == 0)
 		{
-			cout << "comment or empty" << endl;
-			//continue;
+			//cout << "comment or empty" << endl;
 		}
 		else if (strcmp(firstword, "light_source") == 0)
-		{
 			lights->push_back(LightSource::parse(infile, s));
-		}
 		else if (strcmp(firstword, "camera") == 0)
-		{
 			*camera = Camera::parse(infile, s);
-		}
 		else if (strcmp(firstword, "sphere") == 0)
-		{
 			objects->push_back(Sphere::parse(infile, s));
-		}
 		else if (strcmp(firstword, "plane") == 0)
-		{
-			cout << "plane" << endl;
-		}
+			objects->push_back(Plane::parse(infile, s));
+		else if (strcmp(firstword, "triangle") == 0)
+			objects->push_back(Triangle::parse(infile, s));
 		else
 		{
-			cout << "other " << endl;
+			cout << "did not parse: " << firstword << endl;
 		}
-		word = "";
-		//cout << firstword << endl;
-		//getline(infile, line);
-		//cout << line << endl;
-		//cout << s.str() << endl;
-		
+		word = "";		
 	}
 }
 
@@ -66,7 +60,7 @@ vec3 Parse::Vector(stringstream & Stream)
 	Stream.ignore(numeric_limits<streamsize>::max(), '>');
 
 	string line = buf.str();
-	cout << line << endl;
+	//cout << line << endl;
 	int read = sscanf(line.c_str(), "%f, %f, %f", &v.x, &v.y, &v.z);
 
 	if (read != 3)
@@ -87,11 +81,12 @@ void Parse::Modifiers(Shape *shape, ifstream &infile)
 	const char *firstword = word.c_str();
 	while (strcmp(firstword, "}")) // keep looping until you read  '}'
 	{
-		cout << "parse modifier word: " << firstword << endl;
+		//cout << "parse modifier word: " << firstword << endl;
 		if (strcmp(firstword, "pigment") == 0)
 			Parse::Pigment(shape, s);
 		else if (strcmp(firstword, "finish") == 0)
 			Parse::Finish(shape, s);
+
 		getline(infile, line);
 		s.clear();
 		s.str(line);
@@ -102,13 +97,55 @@ void Parse::Modifiers(Shape *shape, ifstream &infile)
 
 void Parse::Pigment(Shape *shape, stringstream &s)
 {
-	cout << "parsing pigment" << endl;
+	//cout << "parsing pigment" << endl;
 	shape->setColor(Parse::Vector(s));
 }
 
 void Parse::Finish(Shape *shape, stringstream &s)
-{
-	cout << "parsing finish" << endl;
-	//shape->setColor(Parse::Vector(s));
+{	
+	float value;
+	string word = "";
+	stringbuf buf;
+	const char *w;
+	char *leftover = NULL;
+	properties *finish = shape->getFinish();
+	//cout << "parsing finish" << endl;
+	s.ignore(numeric_limits<streamsize>::max(), '{');
+	while (strcmp(word.c_str(), "}") && (leftover == NULL || *leftover != '}'))
+	{
+		s >> word;
+		//cout << "word: " <<  word << endl;
+		w = word.c_str();
+		if (strcmp(w, "ambient") == 0)
+		{
+			//cout << "parsing ambient" << endl;
+			//cout << "Finish ambient before: " << shape->getFinish()->ambient << endl;
+			s >> word;
+			value= strtof(word.c_str(), &leftover);
+			finish->ambient = value;
+			//cout << "value: " << word << endl; 
+			//cout << "leftover: " << *leftover << endl;
+		}
+		else if (strcmp(w, "diffuse") == 0)
+		{
+			//cout << "parsing diffuse" << endl;
+			s >> word;
+			value = strtof(word.c_str(), &leftover);
+			finish->diffuse = value;
+			//cout << "value: " << word << endl; 
+			//cout << "leftover: " << *leftover << endl;
+		}
+		else if (strcmp(w, "specular") == 0)
+		{
+			s >> word;
+			finish->specular = strtof(word.c_str(), &leftover);
+		}
+		else if (strcmp(w, "roughness") == 0)
+		{
+			s >> word;
+			finish->roughness = strtof(word.c_str(), &leftover);
+		}
+
+	}
 }
 

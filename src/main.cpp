@@ -32,24 +32,27 @@ using namespace glm;
 
 int g_width, g_height, test_x, test_y;
 int testMode = 0;
+string file_name;
 
 int main(int argc, char **argv)
 {
-   if(argc != 3 and argc != 6) 
+   if(argc != 4 and argc != 7) 
    {
-      cout << "Usage: ./raytrace <width> <height>" << endl;
+      cout << "Usage: ./raytrace <width> <height> filename" << endl;
       return 0;
    }
-   if (argc == 3) {
+   if (argc == 4) {
       g_width = atoi(argv[1]);
       g_height = atoi(argv[2]);
+      file_name = argv[3];
    }
-   else if (argc == 6) {
+   else if (argc == 7) {
       testMode = 1;
       g_width = atoi(argv[2]);
       g_height = atoi(argv[3]);
       test_x = atoi(argv[4]);
       test_y = atoi(argv[5]);
+      file_name = argv[6];
    }
    
    // Scene Object List
@@ -58,35 +61,16 @@ int main(int argc, char **argv)
    vector<LightSource *> lights;
 
    // Parse the file
-   Parse::parse_file("../resources/simple.pov", &objects, &camera, &lights);
+   Parse::parse_file(file_name, &objects, &camera, &lights);
 
-   /*
-   stringstream s;
-   vec3 v;
-
-   s.str("<3.0>");
-   v = Parse::Vector(s);
-   cout << v.x << " " << v.y << " " << v.z << endl;
-
-   s.str("<3.0, 1.0, 2.0>");
-   v = Parse::Vector(s);
-   cout << v.x << " " << v.y << " " << v.z << endl;
-
-   s.str("<3.0, 1.0 2.0>");
-   v = Parse::Vector(s);
-   cout << v.x << " " << v.y << " " << v.z << endl;
-
-   */
    //init_sphere_pov(&objects, &camera, &lights);
    //init_simple_pov(&objects, &camera, &light);
    //init_simple_cam_pov(&objects, &camera, &lights, 2);
    //init_simple_tri_pov(&objects, &camera, &lights);
 
-   /*
    if (testMode)
       single_raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);
    else
       raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);
    return 0;
-   */
 }

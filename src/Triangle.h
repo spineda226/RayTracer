@@ -26,6 +26,7 @@ class Triangle : public Shape
 
       vec3 getNormal(const glm::vec3 &point) override { return cross(p2-p1, p3-p1); }
       int getClosestIntersection(Ray &ray) override;
+      static Triangle *parse(std::ifstream &infile, std::stringstream &s);
 
    private:
       vec3 p1, p2, p3;

@@ -20,6 +20,8 @@ class Plane : public Shape
 
       int getClosestIntersection(Ray &ray) override;
 
+      static Plane *parse(std::ifstream &infile, std::stringstream &s);
+
    private:
       vec3 normal;
       float distance; // how far from the origin the plane is along the normal

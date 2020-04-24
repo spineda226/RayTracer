@@ -21,8 +21,7 @@ Camera *Camera::parse(ifstream &infile, stringstream &s)
 	s >> word;
 	if (strcmp(word.c_str(), "{") != 0)
 		cerr << "Expected '{' but found '" << word << "'" << endl;
-
-	// Location
+	//Location
 	s.clear();
 	getline(infile, line);
 	s.str(line);
@@ -69,6 +68,5 @@ Camera *Camera::parse(ifstream &infile, stringstream &s)
 	s >> word;
 	if (strcmp(word.c_str(), "}") != 0)
 		cerr << "Expected '}' but found '" << word << "'" << endl;
-
 	return camera;
 }

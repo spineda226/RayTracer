@@ -1,9 +1,40 @@
 #include "Triangle.h"
 #include <iostream>
+#include "Parse.h"
+#include <string.h>
+#include <sstream>
+#include <stdlib.h> //strtof
 
 Triangle::Triangle(vec3 p1, vec3 p2, vec3 p3, vec3 color, properties *finish) :
    p1(p1), p2(p2), p3(p3), Shape(color, finish)
 {
+}
+
+Triangle *Triangle::parse(std::ifstream &infile, std::stringstream &s)
+{
+	std::cout << "parsing triangle" << std::endl;
+	std::string d, line;
+	// p1
+	s.clear();
+	getline(infile, line);
+	s.str(line);
+	vec3 p1 = Parse::Vector(s);
+
+	// p2
+	s.clear();
+	getline(infile, line);
+	s.str(line);
+	vec3 p2 = Parse::Vector(s);
+
+	// p3
+	s.clear();
+	getline(infile, line);
+	s.str(line);
+	vec3 p3 = Parse::Vector(s);
+
+	Triangle *triangle = new Triangle(p1, p2, p3);
+	Parse::Modifiers(triangle, infile);
+	return triangle;
 }
 
 // return -1 if no intersection

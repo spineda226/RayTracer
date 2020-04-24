@@ -15,12 +15,12 @@ Sphere::Sphere(vec3 center, float radius, vec3 color, properties *finish) :
 Sphere *Sphere::parse(std::ifstream &infile, std::stringstream &s)
 {
 	std::string r, line;
-	std::cout << "parsing sphere" << std::endl;
+	//std::cout << "parsing sphere" << std::endl;
 	vec3 center = Parse::Vector(s);
 	s.ignore(std::numeric_limits<std::streamsize>::max(), ',');
 	s >> r;
 	float radius = strtof(r.c_str(), NULL);
-	std::cout << "Radius: " << radius << std::endl;
+	//std::cout << "Radius: " << radius << std::endl;
 	Sphere *sphere = new Sphere(center, radius);
 	Parse::Modifiers(sphere, infile);
 	return sphere;

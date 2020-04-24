@@ -13,7 +13,7 @@ LightSource::LightSource(glm::vec3 location, glm::vec3 color) :
 
 LightSource *LightSource::parse(ifstream &infile, stringstream &s)
 {
-	cout << "parsing light_source" << endl;
+	//cout << "parsing light_source" << endl;
 	vec3 location = Parse::Vector(s);
 	vec3 color = Parse::Vector(s);
 	LightSource *light = new LightSource(location, color);
