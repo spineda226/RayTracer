@@ -4,6 +4,7 @@
 #include "Shape.h"
 #include "Ray.h"
 #include "Data.h"
+#include "AABB.h"
 #include <math.h>
 #include <glm/glm.hpp>
 using namespace glm;
@@ -19,6 +20,7 @@ class Plane : public Shape
       vec3 getNormal(const glm::vec3 &point) override { return normal; }
 
       int getClosestIntersection(Ray &ray) override;
+      AABB *calculateBBox() override;
 
       static Plane *parse(std::ifstream &infile, std::stringstream &s);
 

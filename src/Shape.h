@@ -2,6 +2,7 @@
 #define _SHAPE_H_
 
 #include "Ray.h"
+#include "AABB.h"
 #include <glm/glm.hpp>
 #include "Data.h"
 
@@ -13,6 +14,7 @@ class Shape
       ~Shape() {};
       virtual int getClosestIntersection(Ray &ray) = 0;
       virtual glm::vec3 getNormal(const glm::vec3 &point) = 0;
+      virtual AABB *calculateBBox() = 0;
 
       vec3 getColor() const { return color; }
       void setColor(vec3 c) { color = c; }

@@ -4,6 +4,7 @@
 #include "Shape.h"
 #include "Ray.h"
 #include "Intersection.h"
+#include "AABB.h"
 #include "Data.h"
 #include <math.h>
 #include <glm/glm.hpp>
@@ -26,6 +27,8 @@ class Triangle : public Shape
 
       vec3 getNormal(const glm::vec3 &point) override { return cross(p2-p1, p3-p1); }
       int getClosestIntersection(Ray &ray) override;
+      AABB *calculateBBox() override;
+
       static Triangle *parse(std::ifstream &infile, std::stringstream &s);
 
    private:

@@ -2,6 +2,7 @@
 #define _SPHERE_H_
 
 #include "Shape.h"
+#include "AABB.h"
 #include "Ray.h"
 #include "Intersection.h"
 #include "Data.h"
@@ -23,6 +24,7 @@ class Sphere : public Shape
       vec3 getNormal(const glm::vec3 &point) override { return point - center; }
 
       int getClosestIntersection(Ray &ray) override;
+      AABB *calculateBBox() override;
 
       static Sphere *parse(std::ifstream &infile, std::stringstream &s);
 

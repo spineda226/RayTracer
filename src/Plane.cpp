@@ -49,4 +49,8 @@ int Plane::getClosestIntersection(Ray &ray)
 	return 0;
 }
 
+AABB *Plane::calculateBBox()
+{
+	return NULL;
+}
 

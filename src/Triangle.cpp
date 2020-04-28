@@ -105,3 +105,12 @@ float calcualteDeterminant(vec3 &row1, vec3 &row2, vec3 &row3)
 	float third = row1.z*row2.x*row3.y - row1.z*row2.y*row3.x;  // cdh - ceg
 	return first + second + third;
 }
+
+AABB *Triangle::calculateBBox()
+{
+	AABB *box = new AABB();
+	box->reset(p1);
+	box->addPoint(p2);
+	box->addPoint(p3);
+	return box;
+}

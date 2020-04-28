@@ -67,4 +67,12 @@ int Sphere::getClosestIntersection(Ray &ray)
 	return 0;
 }
 
+AABB *Sphere::calculateBBox()
+{
+	AABB *box = new AABB();
+	box->reset(center - vec3(radius));
+	box->addPoint(center + vec3(radius));
+	return box;
+}
+
 
