@@ -26,6 +26,8 @@ class Triangle : public Shape
       float computeT(vec3 &p0, vec3 &d, float detA);
 
       vec3 getNormal(const glm::vec3 &point) override { return cross(p2-p1, p3-p1); }
+      vec3 getCenter() override { return (p1 + p2 + p3)/glm::vec3(3.0); }
+
       int getClosestIntersection(Ray &ray) override;
       AABB *calculateBBox() override;
 

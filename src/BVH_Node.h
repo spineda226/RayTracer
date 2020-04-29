@@ -7,6 +7,10 @@
 #include <glm/glm.hpp>
 using namespace glm;
 
+#define XAXIS 0
+#define YAXIS 1
+#define ZAXIS 2
+
 class BVH_Node
 {
    public:
@@ -18,8 +22,13 @@ class BVH_Node
       BVH_Node *getRight() const { return right; }
       Shape *getObj() const { return obj; }
 
-      void recursive_tree_build(std::vector<Shape *> *objects);
+      void recursive_tree_build(std::vector<Shape *> *objects, int axis);
+      static void sort_objects_on_axis(std::vector<Shape *> *objects, int axis);
       void calculateBBox();
+
+      static bool comparatorX(Shape *i, Shape *j);
+      static bool comparatorY(Shape *i, Shape *j);
+      static bool comparatorZ(Shape *i, Shape *j);
 
    private:
       BVH_Node *left;

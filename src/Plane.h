@@ -18,6 +18,7 @@ class Plane : public Shape
       vec3 getNormal() const { return normal; }
       float getDistance() const { return distance; }
       vec3 getNormal(const glm::vec3 &point) override { return normal; }
+      vec3 getCenter() override { return distance*normalize(normal); }
 
       int getClosestIntersection(Ray &ray) override;
       AABB *calculateBBox() override;

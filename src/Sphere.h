@@ -18,10 +18,10 @@ class Sphere : public Shape
       Sphere(vec3 center, float radius, vec3 color, properties *finish);
       ~Sphere() {};
 
-      vec3 getCenter() const { return center; }
       float getRadius() const { return radius; }
 
       vec3 getNormal(const glm::vec3 &point) override { return point - center; }
+      vec3 getCenter() override { return center; }
 
       int getClosestIntersection(Ray &ray) override;
       AABB *calculateBBox() override;

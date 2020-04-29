@@ -4,6 +4,7 @@
 #define max(a,b) ((a)>(b)?(a):(b))
 #define min(a,b) ((a)<(b)?(a):(b))
 #define EPSILON 0.001
+using namespace std;
 
 // Raytrace all pixels
 void raytrace(int g_width, int g_height, int i, int j,
