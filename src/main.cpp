@@ -63,12 +63,20 @@ int main(int argc, char **argv)
 
    // Parse the file
    Parse::parse_file(file_name, &objects, &camera, &lights);
-   cout << "Done parsing" << endl;
+
    //init_sphere_pov(&objects, &camera, &lights);
    //init_simple_pov(&objects, &camera, &light);
    //init_simple_cam_pov(&objects, &camera, &lights, 2);
    //init_simple_tri_pov(&objects, &camera, &lights);
-   BVH_Node::sort_objects_on_axis(&objects, 1);
+   
+   //BVH_Node::sort_objects_on_axis(&objects, 0, objects.size()-1, 0);
+   BVH_Node *bvh = new BVH_Node();
+   cout << "Object size: " << objects.size() << endl;
+   bvh->recursive_tree_build(&objects, 0, objects.size()-1, 0);
+   //for (Shape *s : objects)
+   //{
+   //   std::cout << "Shape Center: " << s->getCenter().x << " " << s->getCenter().y << " " << s->getCenter().z << std::endl;
+   //}
    /*
    if (testMode)
       single_raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);

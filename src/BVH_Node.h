@@ -22,8 +22,8 @@ class BVH_Node
       BVH_Node *getRight() const { return right; }
       Shape *getObj() const { return obj; }
 
-      void recursive_tree_build(std::vector<Shape *> *objects, int axis);
-      static void sort_objects_on_axis(std::vector<Shape *> *objects, int axis);
+      void recursive_tree_build(std::vector<Shape *> *objects, int startIdx, int endIdx, int axis);
+      static void sort_objects_on_axis(std::vector<Shape *> *objects, int startIdx, int endIdx, int axis);
       void calculateBBox();
 
       static bool comparatorX(Shape *i, Shape *j);

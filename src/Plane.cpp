@@ -51,6 +51,8 @@ int Plane::getClosestIntersection(Ray &ray)
 
 AABB *Plane::calculateBBox()
 {
-	return NULL;
+	AABB *box = new AABB();
+	box->reset(vec3(0));
+	return box;
 }
 
