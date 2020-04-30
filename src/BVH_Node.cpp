@@ -1,6 +1,17 @@
 #include "BVH_Node.h"
 #include <algorithm> // std::sort
 #include <iostream>
+
+// TODO
+int BVH_Node::getClosestIntersection(Ray &ray)
+{
+	if (this->box->hit(ray)) // hits the root 
+	{
+		return 1;
+	}
+	return 0; // missed the root
+}
+
 void BVH_Node::recursive_tree_build(std::vector<Shape *> *objects, int startIdx, int endIdx, int axis)
 {
 	int N = endIdx - startIdx + 1;
@@ -95,6 +106,4 @@ void BVH_Node::sort_objects_on_axis(std::vector<Shape *> *objects, int startIdx,
 		std::cout << "Shape Center: " << s->getCenter().x << " " << s->getCenter().y << " " << s->getCenter().z << std::endl;
 	}
 	*/
-	
-
 }

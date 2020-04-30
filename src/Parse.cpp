@@ -3,6 +3,7 @@
 #include "Sphere.h"
 #include "Plane.h"
 #include "Triangle.h"
+#include "Box.h"
 #include <iostream>
 #include <fstream>
 #include <limits>
@@ -41,6 +42,8 @@ void Parse::parse_file(string filename, std::vector<Shape *> *objects, Camera **
 			objects->push_back(Plane::parse(infile, s));
 		else if (strcmp(firstword, "triangle") == 0)
 			objects->push_back(Triangle::parse(infile, s));
+		else if (strcmp(firstword, "box") == 0)
+			objects->push_back(Box::parse(infile, s));
 		else
 		{
 			cout << "did not parse: " << firstword << endl;
@@ -86,6 +89,10 @@ void Parse::Modifiers(Shape *shape, ifstream &infile)
 			Parse::Pigment(shape, s);
 		else if (strcmp(firstword, "finish") == 0)
 			Parse::Finish(shape, s);
+		else
+		{
+			cout << "Skipping: " << firstword << endl;
+		}
 
 		getline(infile, line);
 		s.clear();
@@ -144,6 +151,10 @@ void Parse::Finish(Shape *shape, stringstream &s)
 		{
 			s >> word;
 			finish->roughness = strtof(word.c_str(), &leftover);
+		}
+		else
+		{
+			cout << "Skipping: " << w << endl;
 		}
 
 	}

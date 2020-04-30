@@ -2,6 +2,7 @@
 #define _AABB_H_
 
 #include <glm/glm.hpp>
+#include "Ray.h"
 using namespace glm;
 
 class AABB
@@ -17,6 +18,8 @@ class AABB
       void reset(vec3 pt);
       void addPoint(vec3 pt);
       void addBox(AABB other);
+
+      bool hit(const Ray &r);
 
    private:
       vec3 min, max;

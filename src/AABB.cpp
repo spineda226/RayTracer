@@ -23,3 +23,9 @@ void AABB::addBox(AABB other)
 	addPoint(other.min);
 	addPoint(other.max);
 }
+
+// TODO
+bool AABB::hit(const Ray &r)
+{
+	return true;
+}

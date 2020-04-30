@@ -16,7 +16,7 @@ Camera::Camera(vec3 location, vec3 up, vec3 right, vec3 look_at):
 Camera *Camera::parse(ifstream &infile, stringstream &s)
 {
 	Camera *camera = new Camera();
-	cout << "parsing camera" << endl;
+	//cout << "parsing camera" << endl;
 	string word, line;
 	s >> word;
 	if (strcmp(word.c_str(), "{") != 0)

@@ -70,18 +70,21 @@ int main(int argc, char **argv)
    //init_simple_tri_pov(&objects, &camera, &lights);
    
    //BVH_Node::sort_objects_on_axis(&objects, 0, objects.size()-1, 0);
-   BVH_Node *bvh = new BVH_Node();
+   //BVH_Node *bvh = new BVH_Node();
    cout << "Object size: " << objects.size() << endl;
-   bvh->recursive_tree_build(&objects, 0, objects.size()-1, 0);
+   //bvh->recursive_tree_build(&objects, 0, objects.size()-1, 0);
+   
    //for (Shape *s : objects)
    //{
    //   std::cout << "Shape Center: " << s->getCenter().x << " " << s->getCenter().y << " " << s->getCenter().z << std::endl;
    //}
-   /*
+   
+   
    if (testMode)
-      single_raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);
+      single_raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, *camera, lights);
    else
-      raytrace(g_width, g_height, test_x, test_y, objects, *camera, lights);
+      raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, *camera, lights);
+   
    return 0;
-   */
+   
 }

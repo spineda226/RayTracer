@@ -30,6 +30,8 @@ class BVH_Node
       static bool comparatorY(Shape *i, Shape *j);
       static bool comparatorZ(Shape *i, Shape *j);
 
+      int getClosestIntersection(Ray &ray);
+
    private:
       BVH_Node *left;
       BVH_Node *right;
