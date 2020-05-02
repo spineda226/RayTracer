@@ -1,6 +1,7 @@
 #include "Raytrace.h"
 #include "Intersection.h"
 #include "Image.h"
+#include <iostream>
 #define max(a,b) ((a)>(b)?(a):(b))
 #define min(a,b) ((a)<(b)?(a):(b))
 #define EPSILON 0.001
@@ -9,9 +10,8 @@ using namespace std;
 // TODO
 // Raytrace all pixels with spatial data structure (BVH)
 void raytrace(int g_width, int g_height, int i, int j,
-  const BVH_Node &bvh, const Camera &camera, const vector<LightSource *> &lights)
+  const BVH_Node &bvh, const std::vector<Shape *> &planes, const Camera &camera, const vector<LightSource *> &lights)
 {
-   /*
    //create an image
    auto image = make_shared<Image>(g_width, g_height);
    
@@ -28,7 +28,7 @@ void raytrace(int g_width, int g_height, int i, int j,
    {
       for (int j = 0; j < g_height; ++j)
       {
-         printf("Pixel %d, %d\n", i, j);
+         //printf("Pixel %d, %d\n", i, j);
          // Calculate the viewing ray for pixel i,j
          float U_s = -0.5 + (i+0.5)/g_width;
          float V_s = -0.5 + (j+0.5)/g_height;
@@ -37,14 +37,15 @@ void raytrace(int g_width, int g_height, int i, int j,
 
          Intersection firstHit;
          Ray viewRay(camera.getLoc(), d, firstHit);
-         for (Shape *s : objects)
+         bvh.getClosestIntersection(viewRay);
+         for (Shape *s : planes)
          {
             // update closest intersection
             s->getClosestIntersection(viewRay);
          }
          if (viewRay.getIntersection().hasIntersection() == 1) // If ray hits something in the scene find the color
          {
-            vec3 color = 255.f*raycolor_without_spatial(objects, lights, viewRay);
+            vec3 color = 255.f*raycolor(bvh, planes, lights, viewRay);
             unsigned int red = min(255, (unsigned int)std::round(color.x));
             unsigned int blue = min(255, (unsigned int)std::round(color.y));
             unsigned int green = min(255, (unsigned int)std::round(color.z));
@@ -56,12 +57,10 @@ void raytrace(int g_width, int g_height, int i, int j,
    }
    //write out the image
    image->writeToFile("out.png");
-   */
 }
 
-vec3 raycolor(const BVH_Node &bvh, const vector<LightSource *> &lights, const Ray &r)
+vec3 raycolor(const BVH_Node &bvh, const std::vector<Shape *> &planes, const vector<LightSource *> &lights, const Ray &r)
 {
-   /*
    Intersection firsthit = r.getIntersection();
    vec3 pt = firsthit.getPoint(); // get the point of intersection
    const properties *finish = firsthit.getObject()->getFinish(); // object properties
@@ -75,7 +74,7 @@ vec3 raycolor(const BVH_Node &bvh, const vector<LightSource *> &lights, const Ra
       float light_pt_distance = distance(light->getLoc(), pt);
       Intersection firsthit_to_light;
       Ray lightRay(pt + l*vec3(EPSILON), l, firsthit_to_light); // ray to the light from intersection point
-      for (Shape *s : objects) // check if you hit anything on the way to the light
+      for (Shape *s : planes) // check if you hit anything on the way to the light
       {
          s->getClosestIntersection(lightRay);
          if (lightRay.getIntersection().hasIntersection() == 1)
@@ -85,6 +84,14 @@ vec3 raycolor(const BVH_Node &bvh, const vector<LightSource *> &lights, const Ra
                in_shadow = true;
                break;
             }
+         }
+      }
+      if (in_shadow == false)
+      {
+         if (bvh.hit(lightRay))
+         {
+            if (lightRay.getIntersection().getDistance() < light_pt_distance)
+               in_shadow = true;
          }
       }
       if (in_shadow == false)
@@ -99,15 +106,13 @@ vec3 raycolor(const BVH_Node &bvh, const vector<LightSource *> &lights, const Ra
       }
    }
    return color;
-   */
-   return vec3(0);
 }
 
 
 /************************************** WITHOUT SPATIAL DATA STRUCTURE **********************************************************/
 // Raytrace all pixels
 void raytrace_without_spatial(int g_width, int g_height, int i, int j,
-  const vector<Shape *> &objects, const Camera &camera, const vector<LightSource *> &lights)
+  const vector<Shape *> &objects, const std::vector<Shape *> &planes, const Camera &camera, const vector<LightSource *> &lights)
 {
    //create an image
    auto image = make_shared<Image>(g_width, g_height);
@@ -125,7 +130,7 @@ void raytrace_without_spatial(int g_width, int g_height, int i, int j,
    {
       for (int j = 0; j < g_height; ++j)
       {
-         printf("Pixel %d, %d\n", i, j);
+         //printf("Pixel %d, %d\n", i, j);
          // Calculate the viewing ray for pixel i,j
          float U_s = -0.5 + (i+0.5)/g_width;
          float V_s = -0.5 + (j+0.5)/g_height;
@@ -135,13 +140,13 @@ void raytrace_without_spatial(int g_width, int g_height, int i, int j,
          Intersection firstHit;
          Ray viewRay(camera.getLoc(), d, firstHit);
          for (Shape *s : objects)
-         {
-            // update closest intersection
             s->getClosestIntersection(viewRay);
-         }
+         for (Shape *s : planes)
+            s->getClosestIntersection(viewRay);
+
          if (viewRay.getIntersection().hasIntersection() == 1) // If ray hits something in the scene find the color
          {
-            vec3 color = 255.f*raycolor_without_spatial(objects, lights, viewRay);
+            vec3 color = 255.f*raycolor_without_spatial(objects, planes, lights, viewRay);
             unsigned int red = min(255, (unsigned int)std::round(color.x));
             unsigned int blue = min(255, (unsigned int)std::round(color.y));
             unsigned int green = min(255, (unsigned int)std::round(color.z));
@@ -157,7 +162,7 @@ void raytrace_without_spatial(int g_width, int g_height, int i, int j,
 
 // Cast a single ray for pixel x,y and print out the results
 void single_raytrace_without_spatial(int g_width, int g_height, int i, int j,
-  const vector<Shape *> &objects, const Camera &camera, const vector <LightSource *> &lights)
+  const vector<Shape *> &objects, const std::vector<Shape *> &planes, const Camera &camera, const vector <LightSource *> &lights)
 {
    vec3 u, v, w;
    u = camera.getRight(); // not normalized to account for aspect ratio 4:3
@@ -172,13 +177,13 @@ void single_raytrace_without_spatial(int g_width, int g_height, int i, int j,
    Intersection firstHit;
    Ray viewRay(camera.getLoc(), d, firstHit);
    for (Shape *s : objects)
-   {
-      // update closest intersection
       s->getClosestIntersection(viewRay);
-   }
+   for (Shape *s : planes)
+      s->getClosestIntersection(viewRay);
+
    if (viewRay.getIntersection().hasIntersection() == 1)
    {
-      vec3 color = 255.f*raycolor_without_spatial(objects, lights, viewRay);
+      vec3 color = 255.f*raycolor_without_spatial(objects, planes, lights, viewRay);
       unsigned int red = (unsigned int)std::round(color.x);
       unsigned int blue = (unsigned int)std::round(color.y);
       unsigned int green = (unsigned int)std::round(color.z);
@@ -191,7 +196,7 @@ void single_raytrace_without_spatial(int g_width, int g_height, int i, int j,
    }
 }
 
-vec3 raycolor_without_spatial(const vector<Shape *> &objects, const vector<LightSource *> &lights, const Ray &r)
+vec3 raycolor_without_spatial(const vector<Shape *> &objects, const std::vector<Shape *> &planes, const vector<LightSource *> &lights, const Ray &r)
 {
    Intersection firsthit = r.getIntersection();
    vec3 pt = firsthit.getPoint(); // get the point of intersection
@@ -218,6 +223,23 @@ vec3 raycolor_without_spatial(const vector<Shape *> &objects, const vector<Light
             }
          }
       }
+      
+      if  (in_shadow == false) // check if a plane was in the way
+      {
+         for (Shape *s : planes)
+         {
+            s->getClosestIntersection(lightRay);
+            if (lightRay.getIntersection().hasIntersection() == 1)
+            {
+               if (lightRay.getIntersection().getDistance() < light_pt_distance)
+               {
+                  in_shadow = true;
+                  break;
+               }
+            }
+         }
+      }
+      
       if (in_shadow == false)
       {
          // Diffuse

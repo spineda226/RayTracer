@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <glm/glm.hpp>
+#include <time.h>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
@@ -29,6 +30,7 @@
 // functions. You can also say `using std::cout` to be more selective.
 // You should never do this in a header file.
 using namespace std;
+using namespace chrono;
 using namespace glm;
 
 int g_width, g_height, test_x, test_y;
@@ -56,34 +58,46 @@ int main(int argc, char **argv)
       file_name = argv[6];
    }
    
+   // Timer
+   struct timespec start, finish;
+   double elapsed;
+
    // Scene Object List
    vector<Shape *> objects;
+   vector<Shape *> planes;
    Camera *camera;
    vector<LightSource *> lights;
 
    // Parse the file
-   Parse::parse_file(file_name, &objects, &camera, &lights);
+   Parse::parse_file(file_name, &objects, &planes, &camera, &lights);
 
    //init_sphere_pov(&objects, &camera, &lights);
    //init_simple_pov(&objects, &camera, &light);
    //init_simple_cam_pov(&objects, &camera, &lights, 2);
    //init_simple_tri_pov(&objects, &camera, &lights);
    
-   //BVH_Node::sort_objects_on_axis(&objects, 0, objects.size()-1, 0);
-   //BVH_Node *bvh = new BVH_Node();
+   BVH_Node::sort_objects_on_axis(&objects, 0, objects.size()-1, 0);
+   BVH_Node *bvh = new BVH_Node();
    cout << "Object size: " << objects.size() << endl;
-   //bvh->recursive_tree_build(&objects, 0, objects.size()-1, 0);
+   bvh->recursive_tree_build(&objects, 0, objects.size()-1, 0);
    
    //for (Shape *s : objects)
    //{
    //   std::cout << "Shape Center: " << s->getCenter().x << " " << s->getCenter().y << " " << s->getCenter().z << std::endl;
    //}
    
-   
+   clock_gettime(CLOCK_MONOTONIC, &start);
    if (testMode)
-      single_raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, *camera, lights);
+      single_raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, planes, *camera, lights);
    else
-      raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, *camera, lights);
+   {
+      //raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, planes, *camera, lights);
+      raytrace(g_width, g_height, test_x, test_y, *bvh, planes, *camera, lights);
+   }
+   clock_gettime(CLOCK_MONOTONIC, &finish);
+   elapsed = (finish.tv_sec - start.tv_sec);
+   elapsed += (finish.tv_nsec - start.tv_nsec)/1000000000.0;
+   cout << "Elapsed Time: " << elapsed << " seconds" << endl;
    
    return 0;
    

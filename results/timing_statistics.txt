@@ -1,0 +1,10 @@
+Timing Results
+
+bunny.pov (10,000 triangles)
+- Without spatial data structure
+     660.563 seconds
+     689.891 seconds
+     Average: 675.227 (~11 minutes and 15 seconds) 
+- With BVH spatial data structure
+     2.06312 seconds 
+     2.06276 seconds

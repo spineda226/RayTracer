@@ -11,7 +11,7 @@
 #include <stdlib.h> //strtof
 using namespace std;
 
-void Parse::parse_file(string filename, std::vector<Shape *> *objects, Camera **camera, std::vector<LightSource *> *lights)
+void Parse::parse_file(string filename, std::vector<Shape *> *objects, std::vector<Shape *> *planes, Camera **camera, std::vector<LightSource *> *lights)
 {
 	stringstream s;
 	string word;
@@ -39,7 +39,7 @@ void Parse::parse_file(string filename, std::vector<Shape *> *objects, Camera **
 		else if (strcmp(firstword, "sphere") == 0)
 			objects->push_back(Sphere::parse(infile, s));
 		else if (strcmp(firstword, "plane") == 0)
-			objects->push_back(Plane::parse(infile, s));
+			planes->push_back(Plane::parse(infile, s));
 		else if (strcmp(firstword, "triangle") == 0)
 			objects->push_back(Triangle::parse(infile, s));
 		else if (strcmp(firstword, "box") == 0)

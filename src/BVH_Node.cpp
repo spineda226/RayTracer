@@ -2,14 +2,47 @@
 #include <algorithm> // std::sort
 #include <iostream>
 
-// TODO
-int BVH_Node::getClosestIntersection(Ray &ray)
+// return immediately if there is a hit
+bool BVH_Node::hit(Ray &ray) const
+{
+	if (this->box->hit(ray))
+	{
+		if (this->obj != NULL)
+		{
+			this->obj->getClosestIntersection(ray);
+			if (ray.getIntersection().hasIntersection() == 1)
+				return true;
+			return false;
+		}
+		else
+		{
+			if (this->left->hit(ray))
+				return true;
+			if (this->right->hit(ray))
+				return true;
+		}
+
+	}
+	return false;
+}
+// Gets closests intersection in the BVH 
+int BVH_Node::getClosestIntersection(Ray &ray) const
 {
 	if (this->box->hit(ray)) // hits the root 
 	{
-		return 1;
+		if (this->obj != NULL) // Leaf child (actual geometry)
+		{
+			this->obj->getClosestIntersection(ray);
+		}
+		else // check left and right
+		{
+			this->left->getClosestIntersection(ray);
+			this->right->getClosestIntersection(ray);
+		}
+		if (ray.getIntersection().hasIntersection() == 1)
+			return 0;
 	}
-	return 0; // missed the root
+	return -1; // missed the root
 }
 
 void BVH_Node::recursive_tree_build(std::vector<Shape *> *objects, int startIdx, int endIdx, int axis)

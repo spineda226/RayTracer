@@ -20,6 +20,7 @@ class AABB
       void addBox(AABB other);
 
       bool hit(const Ray &r);
+      static bool epsilonEquals(float const a, float const b, float const epsilon = 0.0001f);
 
    private:
       vec3 min, max;
