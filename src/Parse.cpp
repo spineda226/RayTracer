@@ -152,6 +152,21 @@ void Parse::Finish(Shape *shape, stringstream &s)
 			s >> word;
 			finish->roughness = strtof(word.c_str(), &leftover);
 		}
+		else if (strcmp(w, "reflection") == 0)
+		{
+			s >> word;
+			finish->reflection = strtof(word.c_str(), &leftover);
+		}
+		else if (strcmp(w, "refraction") == 0)
+		{
+			s >> word;
+			finish->refraction = strtof(word.c_str(), &leftover);
+		}
+		else if (strcmp(w, "ior") == 0)
+		{
+			s >> word;
+			finish->ior = strtof(word.c_str(), &leftover);
+		}
 		else
 		{
 			cout << "Skipping: " << w << endl;

@@ -131,7 +131,6 @@ void BVH_Node::sort_objects_on_axis(std::vector<Shape *> *objects, int startIdx,
 		std::sort(objects->begin()+startIdx, objects->begin() + startIdx + numElements, comparatorY);
 	else if (axis == ZAXIS)
 		std::sort(objects->begin()+startIdx, objects->begin() + startIdx + numElements, comparatorZ);
-	
 	/*
 	std::cout << "Sorting Vector by " << axis << std::endl;
 	for (Shape *s : *objects)

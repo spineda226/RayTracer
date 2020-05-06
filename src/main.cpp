@@ -88,11 +88,13 @@ int main(int argc, char **argv)
    
    clock_gettime(CLOCK_MONOTONIC, &start);
    if (testMode)
+   {
       single_raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, planes, *camera, lights);
+   }
    else
    {
       //raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, planes, *camera, lights);
-      raytrace(g_width, g_height, test_x, test_y, *bvh, planes, *camera, lights);
+      raytrace(g_width, g_height, *bvh, planes, *camera, lights);
    }
    clock_gettime(CLOCK_MONOTONIC, &finish);
    elapsed = (finish.tv_sec - start.tv_sec);

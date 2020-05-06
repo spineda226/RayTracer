@@ -12,7 +12,7 @@ Triangle::Triangle(vec3 p1, vec3 p2, vec3 p3, vec3 color, properties *finish) :
 
 Triangle *Triangle::parse(std::ifstream &infile, std::stringstream &s)
 {
-	std::cout << "parsing triangle" << std::endl;
+	//std::cout << "parsing triangle" << std::endl;
 	std::string d, line;
 	// p1
 	s.clear();

@@ -7,9 +7,8 @@
 #define EPSILON 0.001
 using namespace std;
 
-// TODO
 // Raytrace all pixels with spatial data structure (BVH)
-void raytrace(int g_width, int g_height, int i, int j,
+void raytrace(int g_width, int g_height,
   const BVH_Node &bvh, const std::vector<Shape *> &planes, const Camera &camera, const vector<LightSource *> &lights)
 {
    //create an image
@@ -45,10 +44,28 @@ void raytrace(int g_width, int g_height, int i, int j,
          }
          if (viewRay.getIntersection().hasIntersection() == 1) // If ray hits something in the scene find the color
          {
-            vec3 color = 255.f*raycolor(bvh, planes, lights, viewRay);
-            unsigned int red = min(255, (unsigned int)std::round(color.x));
-            unsigned int blue = min(255, (unsigned int)std::round(color.y));
-            unsigned int green = min(255, (unsigned int)std::round(color.z));
+            vec3 color = raycolor(bvh, planes, lights, viewRay);
+            //vec3 color = 255.f*raycolor(bvh, planes, lights, viewRay);
+            //unsigned int red = min(255, (unsigned int)std::round(color.x));
+            //unsigned int blue = min(255, (unsigned int)std::round(color.y));
+            //unsigned int green = min(255, (unsigned int)std::round(color.z));
+            
+            // Reflection and refraction
+            
+            vec3 object_n = normalize(viewRay.getIntersection().getObject()->getNormal(viewRay.getIntersection().getPoint()));
+            vec3 reflected_dir = normalize(d - 2*dot(d, object_n)*object_n);
+            Intersection nextHit;
+            Ray reflectRay(viewRay.getIntersection().getPoint() + reflected_dir*vec3(EPSILON), reflected_dir, nextHit);
+            vec3 reflection_color = recursive_raytrace(bvh, planes, lights, reflectRay, 1);
+            
+            //cout << "Color x: " << color.x << endl;
+            vec3 total_color = color + (viewRay.getIntersection().getObject()->getFinish()->reflection)*reflection_color;
+            total_color = 255.f*total_color;
+            //cout << total_color.x << endl;
+            unsigned int red = min(255, (unsigned int)std::round(total_color.x));
+            unsigned int blue = min(255, (unsigned int)std::round(total_color.y));
+            unsigned int green = min(255, (unsigned int)std::round(total_color.z));
+            
             image->setPixel(i, j , red, blue, green);
          } 
          else // else color it background color
@@ -57,6 +74,74 @@ void raytrace(int g_width, int g_height, int i, int j,
    }
    //write out the image
    image->writeToFile("out.png");
+}
+
+// Recursively raytrace a single ray and return the generated color
+vec3 recursive_raytrace(const BVH_Node &bvh, const std::vector<Shape *> &planes, const std::vector<LightSource *> &lights, Ray &ray, int iteration)
+{
+   if (iteration == 1)
+      return vec3(0);
+   bvh.getClosestIntersection(ray);
+   for (Shape *s : planes)
+   {
+      // update closest intersection
+      s->getClosestIntersection(ray);
+   }
+   if (ray.getIntersection().hasIntersection() == 1) // If ray hits something in the scene find the color
+   {
+      vec3 color = raycolor(bvh, planes, lights, ray);
+      //vec3 color = 255.f*raycolor(bvh, planes, lights, ray);
+      //unsigned int red = min(255, (unsigned int)std::round(color.x));
+      //unsigned int blue = min(255, (unsigned int)std::round(color.y));
+      //unsigned int green = min(255, (unsigned int)std::round(color.z));
+
+      vec3 d = ray.getDir();
+      vec3 object_n = normalize(ray.getIntersection().getObject()->getNormal(ray.getIntersection().getPoint()));
+      vec3 reflected_dir = normalize(d - 2*dot(d, object_n)*object_n);
+      Intersection nextHit;
+      Ray reflectRay(ray.getIntersection().getPoint() + reflected_dir*vec3(EPSILON), reflected_dir, nextHit);
+      vec3 reflection_color = recursive_raytrace(bvh, planes, lights, reflectRay, iteration+1);
+
+      vec3 total_color = color + (ray.getIntersection().getObject()->getFinish()->reflection)*reflection_color;
+      return total_color;
+   } 
+   else // else color it background color
+      return vec3(0);
+}
+
+// Cast a single ray for pixel x,y and print out the results
+void single_raytrace(int g_width, int g_height, int i, int j,
+  const BVH_Node &bvh, const std::vector<Shape *> &planes, const Camera &camera, const vector <LightSource *> &lights)
+{
+   vec3 u, v, w;
+   u = camera.getRight(); // not normalized to account for aspect ratio 4:3
+   v = camera.getUp(); // v is the up vector
+   w = normalize(camera.getLoc() - camera.getLookAt()); // w is the opposite of where the camera is looking
+   float U_s = -0.5 + (i+0.5)/g_width;
+   float V_s = -0.5 + (j+0.5)/g_height;
+   float W_s = -1; // near plane is one unit in front of the camera
+   vec3 d = normalize(U_s*u + V_s*v + W_s*w); // d = P_w - C_0
+   printf("Pixel: [%d, %d] Ray: {%f %f %f} -> {%f %f %f}\n",
+           i, j, camera.getLoc().x, camera.getLoc().y, camera.getLoc().z, d.x, d.y, d.z);
+   Intersection firstHit;
+   Ray viewRay(camera.getLoc(), d, firstHit);
+   bvh.getClosestIntersection(viewRay);
+   for (Shape *s : planes)
+      s->getClosestIntersection(viewRay);
+
+   if (viewRay.getIntersection().hasIntersection() == 1)
+   {
+      vec3 color = 255.f*raycolor(bvh, planes, lights, viewRay);
+      unsigned int red = (unsigned int)std::round(color.x);
+      unsigned int blue = (unsigned int)std::round(color.y);
+      unsigned int green = (unsigned int)std::round(color.z);
+      printf("T = %f\n", viewRay.getIntersection().getDistance());
+      printf("Color: %d %d %d\n", red, blue, green);
+   }
+   else
+   {
+      printf("No hit\n");
+   }
 }
 
 vec3 raycolor(const BVH_Node &bvh, const std::vector<Shape *> &planes, const vector<LightSource *> &lights, const Ray &r)
