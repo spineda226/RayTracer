@@ -19,11 +19,14 @@ class Shape
 
       vec3 getColor() const { return color; }
       void setColor(vec3 c) { color = c; }
+      float getFilter() const { return filter; }
+      void setFilter(float f) { filter = f; }
       properties *getFinish() const { return finish; }
       void setProperties(properties *f) { finish = f; }
 
    private:
       vec3 color;
+      float filter;
       properties *finish;
 
 };

@@ -71,7 +71,27 @@ vec3 Parse::Vector(stringstream & Stream)
 		cerr << "Expected to read 3 vector elements but found '" << line << "'" << endl;
 	}
 	return v;
+}
 
+vec4 Parse::Vector4(stringstream & Stream)
+{
+	vec4 v;
+	v.x = v.y = v.z = 0.f;
+	stringbuf buf;
+
+	Stream.ignore(numeric_limits<streamsize>::max(), '<');
+	Stream.get(buf, '>');
+	Stream.ignore(numeric_limits<streamsize>::max(), '>');
+
+	string line = buf.str();
+	//cout << line << endl;
+	int read = sscanf(line.c_str(), "%f, %f, %f, %f", &v.x, &v.y, &v.z, &v.w);
+
+	if (read != 4)
+	{
+		cerr << "Expected to read 4 vector elements but found '" << line << "'" << endl;
+	}
+	return v;
 }
 
 void Parse::Modifiers(Shape *shape, ifstream &infile)
@@ -105,7 +125,22 @@ void Parse::Modifiers(Shape *shape, ifstream &infile)
 void Parse::Pigment(Shape *shape, stringstream &s)
 {
 	//cout << "parsing pigment" << endl;
-	shape->setColor(Parse::Vector(s));
+	string word;
+	s.ignore(numeric_limits<streamsize>::max(), '{');
+	s >> word; // color
+	s >> word; // rgb or rgbf
+	if (strcmp(word.c_str(), "rgb") == 0)
+	{
+		shape->setColor(Parse::Vector(s));
+		shape->setFilter(0);
+	}
+	else // rgbf
+	{
+		vec4 rgbf = Parse::Vector4(s);
+		shape->setColor(vec3(rgbf.x, rgbf.y, rgbf.z));
+		shape->setFilter(rgbf.w);
+		cout << "filter: " << rgbf.w << endl;
+	}
 }
 
 void Parse::Finish(Shape *shape, stringstream &s)
