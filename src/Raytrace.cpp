@@ -9,12 +9,29 @@ using namespace std;
 
 Ray& createReflect(const Ray &incident)
 {
-   vec3 d = incident.getDir();
+   vec3 d = normalize(incident.getDir());
    const Intersection& i = incident.getIntersection();
    vec3 n = normalize(i.getObject()->getNormal(i.getPoint()));
    vec3 reflected_dir = normalize(d - 2*dot(d, n)*n);
    Ray *reflectRay = new Ray(i.getPoint() + reflected_dir*vec3(EPSILON), reflected_dir);
    return *reflectRay;
+}
+
+/* Returns the refracted ray; entering: if ray is entering the media, ratio: n1/n2
+   Assumes after entering it will exit the media into the original media and not go into a different one */
+Ray& createRefract(const Ray &incident, bool entering, float ratio)
+{
+   // Refraction
+   // n1 ior of the first media
+   // n2 ior of material the ray is entering
+   vec3 d = normalize(incident.getDir());
+   const Intersection& i = incident.getIntersection();
+   vec3 n = normalize(i.getObject()->getNormal(i.getPoint()));
+   if (entering == false) // swap the normal if ray is exiting
+      n = -n;
+   vec3 refracted_dir = normalize((ratio*(d-dot(d, n)*n)) - n*vec3((sqrt(1-pow(ratio, 2)*(1-pow(dot(d, n), 2))))));
+   Ray *refractRay = new Ray(i.getPoint() + refracted_dir*vec3(EPSILON), refracted_dir);
+   return *refractRay;
 }
 
 // Raytrace all pixels with spatial data structure (BVH)
@@ -56,32 +73,33 @@ void raytrace(int g_width, int g_height,
             vec3 color = raycolor(bvh, planes, lights, viewRay);
             
             // Reflection
-            vec3 object_n = normalize(viewRay.getIntersection().getObject()->getNormal(viewRay.getIntersection().getPoint()));
-            //vec3 reflected_dir = normalize(d - 2*dot(d, object_n)*object_n);
-            //Ray reflectRay(viewRay.getIntersection().getPoint() + reflected_dir*vec3(EPSILON), reflected_dir);
-
             Ray reflectRay = createReflect(viewRay);
             vec3 reflection_color = vec3(0);
             if (viewRay.getIntersection().getObject()->getFinish()->reflection != 0)
                reflection_color = recursive_raytrace(bvh, planes, lights, reflectRay, 1);
 
-            // Refraction
-            // n1 at start is 1.0 (starting in air)
-            // n2 ior of material we are shading
-            float n2 = viewRay.getIntersection().getObject()->getFinish()->ior;
-            vec3 refracted_dir = ((1/n2)*(d-dot(d, object_n)*object_n));
-            refracted_dir = normalize(refracted_dir - object_n*vec3((sqrt(1-pow((1/n2), 2)*(1-pow(dot(d, object_n), 2))))));
-            Ray refractRay(viewRay.getIntersection().getPoint() + refracted_dir*vec3(EPSILON), refracted_dir);
+            // Refraction (original ray starts in air so ior is 1.0)
+            float ratio = 1.f/(viewRay.getIntersection().getObject()->getFinish()->ior);
+            Ray refractRay = createRefract(viewRay, true, ratio);
             vec3 refraction_color = vec3(0);
             if (viewRay.getIntersection().getObject()->getFilter() != 0)
-               refraction_color = recursive_raytrace(bvh, planes, lights, refractRay, 1, 1, true);
+               refraction_color = recursive_raytrace(bvh, planes, lights, refractRay, 1, ratio, false);
             
             //cout << "Color x: " << color.x << endl;
             float reflection_factor = (viewRay.getIntersection().getObject()->getFinish()->reflection);
             float refraction_factor = (viewRay.getIntersection().getObject()->getFilter());
-
             vec3 total_color = (1-refraction_factor)*(1-reflection_factor)*color + 
-                                 reflection_factor*reflection_color + refraction_factor*refraction_color;
+                            (1-refraction_factor)*reflection_factor*reflection_color +
+                            refraction_factor*refraction_color;
+            /*float schlick_F = pow((1/ratio)-1, 2)/(pow((1/ratio)+1,2));
+            //vec3 n = normalize(viewRay.getIntersection().getObject()->getNormal(viewRay.getIntersection().getPoint()));
+            //vec3 v = normalize(-viewRay.getDir());
+            //float schlick = schlick_F + (1-schlick_F)*pow(max(1-dot(n, v), 0), 5);
+            float local = (1-refraction_factor)*(1-reflection_factor);
+            float refl = (1-refraction_factor)*reflection_factor + (refraction_factor)*schlick;
+            float trans = refraction_factor*(1-schlick);
+            vec3 total_color = local*color + refl*reflection_color + trans*refraction_color;
+            */
             total_color = 255.f*total_color;
             //cout << total_color.x << endl;
             unsigned int red = min(255, (unsigned int)std::round(total_color.x));
@@ -100,7 +118,7 @@ void raytrace(int g_width, int g_height,
 
 // Recursively raytrace a single ray and return the generated color
 vec3 recursive_raytrace(const BVH_Node &bvh, const std::vector<Shape *> &planes, const std::vector<LightSource *> &lights,
-                        Ray &ray, int iteration, float n1, bool enter)
+                        Ray &ray, int iteration, float ratio, bool entering)
 {
    if (iteration == 6)
       return vec3(0);
@@ -110,44 +128,40 @@ vec3 recursive_raytrace(const BVH_Node &bvh, const std::vector<Shape *> &planes,
       s->getClosestIntersection(ray);
    if (ray.getIntersection().hasIntersection() == 1) // If ray hits something in the scene find the color
    {
+      //printf("Iteration %d, T = %f\n", iteration, ray.getIntersection().getDistance());
       vec3 color = raycolor(bvh, planes, lights, ray);
 
-      vec3 d = ray.getDir();
-      vec3 object_n = normalize(ray.getIntersection().getObject()->getNormal(ray.getIntersection().getPoint()));
-      //vec3 reflected_dir = normalize(d - 2*dot(d, object_n)*object_n);
-      //Ray reflectRay(ray.getIntersection().getPoint() + reflected_dir*vec3(EPSILON), reflected_dir);
+      // Reflection
       Ray reflectRay = createReflect(ray);
       vec3 reflection_color = vec3(0);
       if (ray.getIntersection().getObject()->getFinish()->reflection != 0)
          reflection_color = recursive_raytrace(bvh, planes, lights, reflectRay, iteration+1);
 
       // Refraction
-      // n1 at start is 1.0 (starting in air)
-      // n2 ior of material we are shading
-      float n2;
-      if (enter) // now exiting 
-      {
-         object_n = -object_n;
-         n2 = n1;
-         n1 = ray.getIntersection().getObject()->getFinish()->ior;
-      }
-      else
-      {
-         n2 = ray.getIntersection().getObject()->getFinish()->ior;
-         enter = true;
-      }
-
-      vec3 refracted_dir = ((n1/n2)*(d-dot(d, object_n)*object_n));
-      refracted_dir = normalize(refracted_dir - object_n*vec3((sqrt(1-pow((n1/n2), 2)*(1-pow(dot(d, object_n), 2))))));
-      Ray refractRay(ray.getIntersection().getPoint() + refracted_dir*vec3(EPSILON), refracted_dir);
+      ratio = (entering ? 1.f/(ray.getIntersection().getObject()->getFinish()->ior) : 1.f/ratio);
+      Ray refractRay = createRefract(ray, entering, ratio);   
       vec3 refraction_color = vec3(0);
       if ((ray.getIntersection().getObject()->getFilter()) != 0)
-         refraction_color = recursive_raytrace(bvh, planes, lights, refractRay, iteration+1, n2, enter);
+         refraction_color = recursive_raytrace(bvh, planes, lights, refractRay, iteration+1, ratio, !entering);
 
       float reflection_factor = (ray.getIntersection().getObject()->getFinish()->reflection);
       float refraction_factor = (ray.getIntersection().getObject()->getFilter());
       vec3 total_color = (1-refraction_factor)*(1-reflection_factor)*color + 
-                                 reflection_factor*reflection_color + refraction_factor*refraction_color;
+                            (1-refraction_factor)*reflection_factor*reflection_color +
+                            refraction_factor*refraction_color;
+      //printf("Iteration %d, color = %f %f %f\n", iteration, total_color.x, total_color.y, total_color.z);
+      /*
+      float ior = ray.getIntersection().getObject()->getFinish()->ior;
+      float schlick_F = pow(ior-1, 2)/(pow(ior+1,2));
+      vec3 n = normalize(ray.getIntersection().getObject()->getNormal(ray.getIntersection().getPoint()));
+      vec3 v = normalize(-ray.getDir());
+      float schlick = schlick_F + (1-schlick_F)*pow(1-max(dot(n, v), 0), 5);
+
+      float local = (1-refraction_factor)*(1-reflection_factor);
+      float refl = (1-refraction_factor)*reflection_factor + (refraction_factor)*schlick;
+      float trans = refraction_factor*(1-schlick);
+      vec3 total_color = local*color + refl*reflection_color + trans*refraction_color;
+      */
 
       return total_color;
    } 
@@ -176,10 +190,34 @@ void single_raytrace(int g_width, int g_height, int i, int j,
 
    if (viewRay.getIntersection().hasIntersection() == 1)
    {
-      vec3 color = 255.f*raycolor(bvh, planes, lights, viewRay);
-      unsigned int red = (unsigned int)std::round(color.x);
-      unsigned int blue = (unsigned int)std::round(color.y);
-      unsigned int green = (unsigned int)std::round(color.z);
+      vec3 color = raycolor(bvh, planes, lights, viewRay);
+      // Reflection
+      Ray reflectRay = createReflect(viewRay);
+      vec3 reflection_color = vec3(0);
+      if (viewRay.getIntersection().getObject()->getFinish()->reflection != 0)
+         reflection_color = recursive_raytrace(bvh, planes, lights, reflectRay, 1);
+
+      // Refraction (original ray starts in air so ior is 1.0)
+      float ratio = 1.0/(viewRay.getIntersection().getObject()->getFinish()->ior);
+      Ray refractRay = createRefract(viewRay, true, ratio);
+      vec3 refraction_color = vec3(0);
+      if (viewRay.getIntersection().getObject()->getFilter() != 0)
+         refraction_color = recursive_raytrace(bvh, planes, lights, refractRay, 1, ratio, false);
+      
+      //cout << "Color x: " << color.x << endl;
+      float reflection_factor = (viewRay.getIntersection().getObject()->getFinish()->reflection);
+      float refraction_factor = (viewRay.getIntersection().getObject()->getFilter());
+
+      vec3 total_color = (1-refraction_factor)*(1-reflection_factor)*color + 
+                      reflection_factor*reflection_color +
+                      refraction_factor*refraction_color;
+      printf("Color_decimal: %f %f %f\n", total_color.x, total_color.y, total_color.z);
+      total_color = 255.f*total_color;
+      unsigned int red = (unsigned int)std::round(total_color.x);
+      unsigned int blue = (unsigned int)std::round(total_color.y);
+      unsigned int green = (unsigned int)std::round(total_color.z);
+      printf("Reflection Factor = %f\n", reflection_factor);
+      printf("Refraction Factor: %f\n", refraction_factor);
       printf("T = %f\n", viewRay.getIntersection().getDistance());
       printf("Color: %d %d %d\n", red, blue, green);
    }

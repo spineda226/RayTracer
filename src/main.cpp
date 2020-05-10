@@ -89,7 +89,8 @@ int main(int argc, char **argv)
    clock_gettime(CLOCK_MONOTONIC, &start);
    if (testMode)
    {
-      single_raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, planes, *camera, lights);
+      //single_raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, planes, *camera, lights);
+      single_raytrace(g_width, g_height, test_x, test_y, *bvh, planes, *camera, lights);
    }
    else
    {
