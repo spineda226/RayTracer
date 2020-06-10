@@ -91,16 +91,18 @@ void raytrace(int g_width, int g_height,
             vec3 total_color = (1-refraction_factor)*(1-reflection_factor)*color + 
                             (1-refraction_factor)*reflection_factor*reflection_color +
                             refraction_factor*refraction_color;
-            /*float schlick_F = pow((1/ratio)-1, 2)/(pow((1/ratio)+1,2));
-            //vec3 n = normalize(viewRay.getIntersection().getObject()->getNormal(viewRay.getIntersection().getPoint()));
-            //vec3 v = normalize(-viewRay.getDir());
-            //float schlick = schlick_F + (1-schlick_F)*pow(max(1-dot(n, v), 0), 5);
+            /*
+            float schlick_F = pow((1/ratio)-1, 2)/(pow((1/ratio)+1,2));
+            vec3 n = normalize(viewRay.getIntersection().getObject()->getNormal(viewRay.getIntersection().getPoint()));
+            vec3 v = normalize(camera.getLoc() - viewRay.getIntersection().getPoint());
+            float schlick = schlick_F + (1-schlick_F)*pow(max(1-dot(n, v), 0), 5);
             float local = (1-refraction_factor)*(1-reflection_factor);
             float refl = (1-refraction_factor)*reflection_factor + (refraction_factor)*schlick;
             float trans = refraction_factor*(1-schlick);
             vec3 total_color = local*color + refl*reflection_color + trans*refraction_color;
             */
             total_color = 255.f*total_color;
+            
             //cout << total_color.x << endl;
             unsigned int red = min(255, (unsigned int)std::round(total_color.x));
             unsigned int green = min(255, (unsigned int)std::round(total_color.y));
@@ -154,8 +156,9 @@ vec3 recursive_raytrace(const BVH_Node &bvh, const std::vector<Shape *> &planes,
       float ior = ray.getIntersection().getObject()->getFinish()->ior;
       float schlick_F = pow(ior-1, 2)/(pow(ior+1,2));
       vec3 n = normalize(ray.getIntersection().getObject()->getNormal(ray.getIntersection().getPoint()));
-      vec3 v = normalize(-ray.getDir());
+      vec3 v = normalize(vec3(0,0,14)-ray.getIntersection().getPoint());
       float schlick = schlick_F + (1-schlick_F)*pow(1-max(dot(n, v), 0), 5);
+      //cout << schlick << endl;
 
       float local = (1-refraction_factor)*(1-reflection_factor);
       float refl = (1-refraction_factor)*reflection_factor + (refraction_factor)*schlick;
@@ -269,7 +272,9 @@ vec3 raycolor(const BVH_Node &bvh, const std::vector<Shape *> &planes, const vec
          color += (finish->diffuse)*N_dot_L*light->getColor()*firsthit.getObject()->getColor();
          // Specular
          vec3 half_vector = normalize(normalize(vec3(-1)*r.getDir()) + l);
+         //vec3 half_vector = normalize((vec3(0,0,14)-pt) + l);
          float H_dot_N = max(0, dot(normalize(firsthit.getObject()->getNormal(pt)), half_vector));
+         //cout << H_dot_N << endl;
          color += (finish->specular)*H_dot_N*light->getColor()*firsthit.getObject()->getColor();
       }
    }
