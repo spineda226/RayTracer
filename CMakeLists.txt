@@ -13,6 +13,11 @@ file(GLOB_RECURSE HEADERS "src/*.h")
 # Set the executable.
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES} ${HEADERS})
 
+# Add easy_profiler from local source (for best results on Mac)
+add_subdirectory("ext/easy_profiler-2.1.0")
+target_link_libraries(raytrace easy_profiler)
+include_directories("ext/easy_profiler-2.1.0/easy_profiler_core/include/easy")
+
 # Add GLM
 # Get the GLM environment variable. Since GLM is a header-only library, we
 # just need to add it to the include directory.

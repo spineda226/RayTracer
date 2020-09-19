@@ -9,10 +9,13 @@
 #include <limits>
 #include <string.h>
 #include <stdlib.h> //strtof
+#include <easy/profiler.h>
 using namespace std;
 
 void Parse::parse_file(string filename, std::vector<Shape *> *objects, std::vector<Shape *> *planes, Camera **camera, std::vector<LightSource *> *lights)
 {
+	EASY_FUNCTION(profiler::colors::Magenta); // Magenta block with name "foo"
+	EASY_BLOCK("Parsing"); // Begin block with default color == Amber100
 	stringstream s;
 	string word;
 	string line;

@@ -25,6 +25,7 @@
 #include "Data.h"
 #include "Raytrace.h"
 #include "Triangle.h"
+#include <easy/profiler.h>
 
 // This allows you to skip the `std::` in front of C++ standard library
 // functions. You can also say `using std::cout` to be more selective.
@@ -39,6 +40,9 @@ string file_name;
 
 int main(int argc, char **argv)
 {
+   EASY_PROFILER_ENABLE;
+   //profiler::startListen();
+
    if(argc != 4 and argc != 7) 
    {
       cout << "Usage: ./raytrace <width> <height> filename" << endl;
@@ -101,7 +105,7 @@ int main(int argc, char **argv)
    elapsed = (finish.tv_sec - start.tv_sec);
    elapsed += (finish.tv_nsec - start.tv_nsec)/1000000000.0;
    cout << "Elapsed Time: " << elapsed << " seconds" << endl;
-   
+   profiler::dumpBlocksToFile("test_profile.prof");
    return 0;
    
 }
