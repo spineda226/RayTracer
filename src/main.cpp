@@ -73,13 +73,14 @@ int main(int argc, char **argv)
    vector<LightSource *> lights;
 
    // Parse the file
+   //EASY_BLOCK("Parsing"); // Begin block with default color == Amber100
    Parse::parse_file(file_name, &objects, &planes, &camera, &lights);
 
    //init_sphere_pov(&objects, &camera, &lights);
    //init_simple_pov(&objects, &camera, &light);
    //init_simple_cam_pov(&objects, &camera, &lights, 2);
    //init_simple_tri_pov(&objects, &camera, &lights);
-   
+   //EASY_BLOCK("BVH Construction", profiler::colors::Blue500); // Blue block
    BVH_Node::sort_objects_on_axis(&objects, 0, objects.size()-1, 0);
    BVH_Node *bvh = new BVH_Node();
    cout << "Object size: " << objects.size() << endl;
@@ -91,6 +92,7 @@ int main(int argc, char **argv)
    //}
    
    clock_gettime(CLOCK_MONOTONIC, &start);
+   //EASY_BLOCK("Raytracing", profiler::colors::Red); // Scoped red block (no EASY_END_BLOCK needed)
    if (testMode)
    {
       //single_raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, planes, *camera, lights);

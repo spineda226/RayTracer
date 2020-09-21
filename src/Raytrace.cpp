@@ -5,6 +5,7 @@
 #define max(a,b) ((a)>(b)?(a):(b))
 #define min(a,b) ((a)<(b)?(a):(b))
 #define EPSILON 0.001
+#include <easy/profiler.h>
 using namespace std;
 
 Ray& createReflect(const Ray &incident)
@@ -38,6 +39,7 @@ Ray& createRefract(const Ray &incident, bool entering, float ratio)
 void raytrace(int g_width, int g_height,
   const BVH_Node &bvh, const std::vector<Shape *> &planes, const Camera &camera, const vector<LightSource *> &lights)
 {
+   EASY_FUNCTION(profiler::colors::Blue500); // Magenta block with name "foo"
    //create an image
    auto image = make_shared<Image>(g_width, g_height);
    
