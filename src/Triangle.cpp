@@ -114,3 +114,45 @@ AABB *Triangle::calculateBBox()
 	box->addPoint(p3);
 	return box;
 }
+
+const vec3 Triangle::getMins() const 
+{
+   vec3 mins(p1);
+   
+   if (p2.x < mins.x)
+      mins.x = p2.x;
+   if (p2.y < mins.y)
+      mins.y = p2.y;
+   if (p2.z < mins.z)
+      mins.z = p2.z;
+   
+   if (p3.x < mins.x)
+      mins.x = p3.x;
+   if (p3.y < mins.y)
+      mins.y = p3.y;
+   if (p3.z < mins.z)
+      mins.z = p3.z;
+   
+   return mins;
+}
+
+const vec3 Triangle::getMaxs() const
+{
+   vec3 maxs(p1);
+   
+   if (p2.x > maxs.x)
+      maxs.x = p2.x;
+   if (p2.y > maxs.y)
+      maxs.y = p2.y;
+   if (p2.z > maxs.z)
+      maxs.z = p2.z;
+   
+   if (p3.x > maxs.x)
+      maxs.x = p3.x;
+   if (p3.y > maxs.y)
+      maxs.y = p3.y;
+   if (p3.z > maxs.z)
+      maxs.z = p3.z;
+   
+   return maxs;
+}

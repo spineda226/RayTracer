@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include "Ray.h"
 using namespace glm;
+#include <fstream> // ifstream, getline
 
 class AABB
 {
@@ -23,6 +24,13 @@ class AABB
 
       bool hit(const Ray &r);
       static bool epsilonEquals(float const a, float const b, float const epsilon = 0.0001f);
+
+      // friend: function defined outside the class but has access to private members
+      friend std::ostream& operator<<(std::ostream& out, const AABB &bb) {
+         out << "Min: <" << bb.min.x << " " << bb.min.y << " " << bb.min.z << ">, Max: <" <<
+                bb.max.x << " " << bb.max.y << " " << bb.max.z << ">" << std::endl;
+         return out;
+      }
 
    private:
       vec3 min, max;

@@ -4,6 +4,7 @@
 
 #include "SVO.h"
 #include <iostream> // cerr
+#include "Voxels.h"
 
 /**
  * Instantiates and initializes the SVO.
@@ -37,7 +38,7 @@ SVO::SVO(const unsigned int numLevels, AABB &boundingBox, const std::vector<Tria
 void SVO::build(const std::vector<Triangle *> *triangles)
 {
    // auto start = chrono::steady_clock::now();
-   // Voxels* leafVoxels = new Voxels(numLevels, boundingBox, triangles, meshFilePath);
+   Voxels* leafVoxels = new Voxels(numLevels, boundingBox, triangles);
    // auto end = chrono::steady_clock::now();
    // auto diff = end - start;
    // cout << "\t\tTime Voxelization: " << chrono::duration <double, milli> (diff).count() << " ms" << endl;

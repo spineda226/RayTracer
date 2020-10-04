@@ -20,6 +20,8 @@ class Triangle : public Shape
       vec3 getP1() const { return p1; }
       vec3 getP2() const { return p2; }
       vec3 getP3() const { return p3; }
+      const vec3 getMins() const;
+      const vec3 getMaxs() const;
 
       float computeGamma(vec3 &p0, vec3 &d, float detA);
       float computeBeta(vec3 &p0, vec3 &d, float detA);

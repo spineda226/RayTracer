@@ -6,10 +6,8 @@
 #define _SVO_H_
 
 #include "Triangle.h"
-#include "Intersection.h"
 #include <glm/glm.hpp>
 
-//#include "Voxels.hpp"
 #include "AABB.h"
 //#include "SVONode.hpp"
 
@@ -28,21 +26,23 @@ using namespace glm;
 
 class SVO
 {
-	public:
-		SVO(const unsigned int numLevels, AABB& boundingBox, const std::vector<Triangle *> *triangles);
+  public:
+    SVO(const unsigned int numLevels, AABB& boundingBox, const std::vector<Triangle *> *triangles);
 		~SVO() {};
 
+    void build(const std::vector<Triangle *> *triangles);
+
 	private:
-		unsigned int numLevels; // depth (root is level 0), needs to be at least 3 levels
+    unsigned int numLevels; // depth (root is level 0), needs to be at least 3 levels
 		AABB boundingBox;
 		unsigned long size; // Total number of voxels if the SVO was full: 8**numLevels
-        unsigned int dimension; // Number of voxels for one side of the cube: 2**numLevels
-        float voxelWidth; // The length of one voxel in world space: width / dimension
-        void** levels; // Array of SVONode*'s that correspond to the levels of the SVO with 0 as root
-        unsigned int* levelSizes;
+    unsigned int dimension; // Number of voxels for one side of the cube: 2**numLevels
+    float voxelWidth; // The length of one voxel in world space: width / dimension
+    void** levels; // Array of SVONode*'s that correspond to the levels of the SVO with 0 as root
+    unsigned int* levelSizes;
 
 
-        void build(const std::vector<Triangle *> *triangles);
+
       // void setVoxel(unsigned int x, unsigned int y, unsigned int z, uint64_t* activeNodes, uint64_t* nodes);
       // void voxelizeTriangle(const Triangle& triangle, uint64_t* activeNodes, uint64_t* nodes);
       // bool isSet(unsigned int x, unsigned int y, unsigned int z);
