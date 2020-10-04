@@ -14,9 +14,18 @@ file(GLOB_RECURSE HEADERS "src/*.h")
 add_executable(${CMAKE_PROJECT_NAME} ${SOURCES} ${HEADERS})
 
 # Add easy_profiler from local source (for best results on Mac)
-add_subdirectory("ext/easy_profiler-2.1.0")
-target_link_libraries(raytrace easy_profiler)
-include_directories("ext/easy_profiler-2.1.0/easy_profiler_core/include/easy")
+#add_subdirectory("ext/easy_profiler-2.1.0")
+#target_link_libraries(raytrace easy_profiler)
+#include_directories("ext/easy_profiler-2.1.0/easy_profiler_core/include/easy")
+
+# Add TBB
+set(TBB_INCLUDE_DIR "$ENV{TBB_INCLUDE_DIR}")
+if(TBB_INCLUDE_DIR)
+  include_directories(${TBB_INCLUDE_DIR})
+  message(STATUS "TBB environment variable found")
+else()
+  message(STATUS "TBB environment variable `TBB_INCLUDE_DIR` not found, TBB must be installed with the system")
+endif()
 
 # Add GLM
 # Get the GLM environment variable. Since GLM is a header-only library, we

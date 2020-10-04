@@ -25,7 +25,8 @@
 #include "Data.h"
 #include "Raytrace.h"
 #include "Triangle.h"
-#include <easy/profiler.h>
+#include "SVO.h"
+//#include <easy/profiler.h>
 
 // This allows you to skip the `std::` in front of C++ standard library
 // functions. You can also say `using std::cout` to be more selective.
@@ -40,7 +41,7 @@ string file_name;
 
 int main(int argc, char **argv)
 {
-   EASY_PROFILER_ENABLE;
+   //EASY_PROFILER_ENABLE;
 
    if(argc != 4 and argc != 7) 
    {
@@ -68,16 +69,16 @@ int main(int argc, char **argv)
    double elapsed;
 
    // Scene Object List
-   vector<Shape *> objects;
+   vector<Triangle *> triangles;
    vector<Shape *> planes;
    Camera *camera;
    vector<LightSource *> lights;
 
    // Parse the file
-   Parse::parse_file(file_name, &objects, &planes, &camera, &lights);
+   Parse::parse_file(file_name, &triangles, &planes, &camera, &lights);
 
-
-   SVO svo(numLevels, objFile.getBoundingBox(), &objects); // Brent
+   AABB *meshBBox = triangles[0]->calculateBBox(); // testing with a single triangle first
+   SVO svo(numLevels, *meshBBox, &triangles); // Brent
 
    // BVH_Node::sort_objects_on_axis(&objects, 0, objects.size()-1, 0);
    // BVH_Node *bvh = new BVH_Node();

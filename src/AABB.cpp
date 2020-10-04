@@ -101,3 +101,32 @@ bool AABB::hit(const Ray &r)
 		return false;
 	return true;
 }
+
+// Taken from Brent Williams
+// Turns bounding box into a square
+void AABB::square()
+{
+   float xLen = max.x - min.x;
+   float yLen = max.y - min.y;
+   float zLen = max.z - min.z;
+   float largest = xLen;
+   
+   if (yLen > largest)
+      largest = yLen;
+   if (zLen > largest)
+      largest = zLen;
+
+   float halfLength = xLen * 0.5f; // should this be largest?
+
+   float centerX = (min.x + max.x) * 0.5f;
+   min.x = centerX - halfLength;
+   max.x = centerX + halfLength;
+
+   float centerY = (min.y + max.y) * 0.5f;
+   min.y = centerY - halfLength;
+   max.y = centerY + halfLength;
+
+   float centerZ = (min.z + max.z) * 0.5f;
+   min.z = centerZ - halfLength;
+   max.z = centerZ + halfLength;
+}

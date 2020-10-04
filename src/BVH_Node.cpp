@@ -1,7 +1,7 @@
 #include "BVH_Node.h"
 #include <algorithm> // std::sort
 #include <iostream>
-#include <easy/profiler.h>
+//#include <easy/profiler.h>
 
 // return immediately if there is a hit
 bool BVH_Node::hit(Ray &ray) const
@@ -48,7 +48,7 @@ int BVH_Node::getClosestIntersection(Ray &ray) const
 
 void BVH_Node::recursive_tree_build(std::vector<Shape *> *objects, int startIdx, int endIdx, int axis)
 {
-	EASY_FUNCTION(profiler::colors::Red); // Magenta block with name "foo"
+	//EASY_FUNCTION(profiler::colors::Red); // Magenta block with name "foo"
 	int N = endIdx - startIdx + 1;
 	if (N <= 1)
 	{
@@ -76,7 +76,7 @@ void BVH_Node::recursive_tree_build(std::vector<Shape *> *objects, int startIdx,
 
 void BVH_Node::calculateBBox()
 {
-	EASY_FUNCTION();
+	//EASY_FUNCTION();
 	if (this->obj != NULL) // get bbox of the leaf object
 	{
 		this->box = this->obj->calculateBBox();

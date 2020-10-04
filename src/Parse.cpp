@@ -9,13 +9,13 @@
 #include <limits>
 #include <string.h>
 #include <stdlib.h> //strtof
-#include <easy/profiler.h>
+//#include <easy/profiler.h>
 using namespace std;
 
-void Parse::parse_file(string filename, std::vector<Shape *> *objects, std::vector<Shape *> *planes, Camera **camera, std::vector<LightSource *> *lights)
+void Parse::parse_file(string filename, std::vector<Triangle *> *triangles, std::vector<Shape *> *planes, Camera **camera, std::vector<LightSource *> *lights)
 {
-	EASY_FUNCTION(profiler::colors::Magenta); // Magenta block with name "foo"
-	//EASY_BLOCK("Parsing"); // Begin block with default color == Amber100
+	//EASY_FUNCTION(profiler::colors::Magenta); // Magenta block with name "foo"
+
 	stringstream s;
 	string word;
 	string line;
@@ -39,14 +39,14 @@ void Parse::parse_file(string filename, std::vector<Shape *> *objects, std::vect
 			lights->push_back(LightSource::parse(infile, s));
 		else if (strcmp(firstword, "camera") == 0)
 			*camera = Camera::parse(infile, s);
-		else if (strcmp(firstword, "sphere") == 0)
-			objects->push_back(Sphere::parse(infile, s));
-		else if (strcmp(firstword, "plane") == 0)
-			planes->push_back(Plane::parse(infile, s));
+		//else if (strcmp(firstword, "sphere") == 0)
+		//	objects->push_back(Sphere::parse(infile, s));
+		//else if (strcmp(firstword, "plane") == 0)
+		//	planes->push_back(Plane::parse(infile, s));
 		else if (strcmp(firstword, "triangle") == 0)
-			objects->push_back(Triangle::parse(infile, s));
-		else if (strcmp(firstword, "box") == 0)
-			objects->push_back(Box::parse(infile, s));
+			triangles->push_back(Triangle::parse(infile, s));
+		//else if (strcmp(firstword, "box") == 0)
+		//	objects->push_back(Box::parse(infile, s));
 		else
 		{
 			cout << "did not parse: " << firstword << endl;
