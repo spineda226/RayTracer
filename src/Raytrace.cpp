@@ -124,6 +124,7 @@ void raytrace(int g_width, int g_height,
 vec3 recursive_raytrace(const BVH_Node &bvh, const std::vector<Shape *> &planes, const std::vector<LightSource *> &lights,
                         Ray &ray, int iteration, float ratio, bool entering)
 {
+   EASY_FUNCTION();
    if (iteration == 6)
       return vec3(0);
 
@@ -234,6 +235,7 @@ void single_raytrace(int g_width, int g_height, int i, int j,
 
 vec3 raycolor(const BVH_Node &bvh, const std::vector<Shape *> &planes, const vector<LightSource *> &lights, const Ray &r)
 {
+   EASY_FUNCTION();
    Intersection firsthit = r.getIntersection();
    vec3 pt = firsthit.getPoint(); // get the point of intersection
    const properties *finish = firsthit.getObject()->getFinish(); // object properties

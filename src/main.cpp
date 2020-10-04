@@ -41,7 +41,6 @@ string file_name;
 int main(int argc, char **argv)
 {
    EASY_PROFILER_ENABLE;
-   //profiler::startListen();
 
    if(argc != 4 and argc != 7) 
    {
@@ -61,6 +60,8 @@ int main(int argc, char **argv)
       test_y = atoi(argv[5]);
       file_name = argv[6];
    }
+
+   unsigned int numLevels = 3; // Brent
    
    // Timer
    struct timespec start, finish;
@@ -73,41 +74,37 @@ int main(int argc, char **argv)
    vector<LightSource *> lights;
 
    // Parse the file
-   //EASY_BLOCK("Parsing"); // Begin block with default color == Amber100
    Parse::parse_file(file_name, &objects, &planes, &camera, &lights);
 
-   //init_sphere_pov(&objects, &camera, &lights);
-   //init_simple_pov(&objects, &camera, &light);
-   //init_simple_cam_pov(&objects, &camera, &lights, 2);
-   //init_simple_tri_pov(&objects, &camera, &lights);
-   //EASY_BLOCK("BVH Construction", profiler::colors::Blue500); // Blue block
-   BVH_Node::sort_objects_on_axis(&objects, 0, objects.size()-1, 0);
-   BVH_Node *bvh = new BVH_Node();
-   cout << "Object size: " << objects.size() << endl;
-   bvh->recursive_tree_build(&objects, 0, objects.size()-1, 0);
+
+   SVO svo(numLevels, objFile.getBoundingBox(), &objects); // Brent
+
+   // BVH_Node::sort_objects_on_axis(&objects, 0, objects.size()-1, 0);
+   // BVH_Node *bvh = new BVH_Node();
+   // cout << "Object size: " << objects.size() << endl;
+   // bvh->recursive_tree_build(&objects, 0, objects.size()-1, 0);
    
-   //for (Shape *s : objects)
-   //{
-   //   std::cout << "Shape Center: " << s->getCenter().x << " " << s->getCenter().y << " " << s->getCenter().z << std::endl;
-   //}
+   // //for (Shape *s : objects)
+   // //{
+   // //   std::cout << "Shape Center: " << s->getCenter().x << " " << s->getCenter().y << " " << s->getCenter().z << std::endl;
+   // //}
    
-   clock_gettime(CLOCK_MONOTONIC, &start);
-   //EASY_BLOCK("Raytracing", profiler::colors::Red); // Scoped red block (no EASY_END_BLOCK needed)
-   if (testMode)
-   {
-      //single_raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, planes, *camera, lights);
-      single_raytrace(g_width, g_height, test_x, test_y, *bvh, planes, *camera, lights);
-   }
-   else
-   {
-      //raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, planes, *camera, lights);
-      raytrace(g_width, g_height, *bvh, planes, *camera, lights);
-   }
-   clock_gettime(CLOCK_MONOTONIC, &finish);
-   elapsed = (finish.tv_sec - start.tv_sec);
-   elapsed += (finish.tv_nsec - start.tv_nsec)/1000000000.0;
-   cout << "Elapsed Time: " << elapsed << " seconds" << endl;
-   profiler::dumpBlocksToFile("test_profile.prof");
+   // clock_gettime(CLOCK_MONOTONIC, &start);
+   // if (testMode)
+   // {
+   //    //single_raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, planes, *camera, lights);
+   //    single_raytrace(g_width, g_height, test_x, test_y, *bvh, planes, *camera, lights);
+   // }
+   // else
+   // {
+   //    //raytrace_without_spatial(g_width, g_height, test_x, test_y, objects, planes, *camera, lights);
+   //    raytrace(g_width, g_height, *bvh, planes, *camera, lights);
+   // }
+   // clock_gettime(CLOCK_MONOTONIC, &finish);
+   // elapsed = (finish.tv_sec - start.tv_sec);
+   // elapsed += (finish.tv_nsec - start.tv_nsec)/1000000000.0;
+   // cout << "Elapsed Time: " << elapsed << " seconds" << endl;
+   // profiler::dumpBlocksToFile("test_profile.prof");
    return 0;
    
 }

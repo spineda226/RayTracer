@@ -76,6 +76,7 @@ void BVH_Node::recursive_tree_build(std::vector<Shape *> *objects, int startIdx,
 
 void BVH_Node::calculateBBox()
 {
+	EASY_FUNCTION();
 	if (this->obj != NULL) // get bbox of the leaf object
 	{
 		this->box = this->obj->calculateBBox();
