@@ -30,11 +30,10 @@
 #include "AABB.h"
 #include "Triangle.h"
 // #include "Intersect.hpp"
-// #include "MortonCode.hpp"
 // #include "Image.hpp"
 //#include <unordered_map>
 #include <tbb/concurrent_unordered_map.h>
-// #include "tbb/mutex.h"
+#include "tbb/mutex.h"
 // #include "tbb/atomic.h"
 // #include "tbb/tbb.h"
 
@@ -48,9 +47,8 @@ class Voxels
       unsigned int calculateDataSize(unsigned int levels);
       void build(const std::vector<Triangle *> *triangles);
       void voxelizeTriangle(const Triangle& triangle, unsigned int i);
-
-
-      // void set(unsigned int x, unsigned int y, unsigned int z);
+      void set(unsigned int x, unsigned int y, unsigned int z);
+      
       // bool isSet(unsigned int x, unsigned int y, unsigned int z);
       // unsigned int countSetVoxels();
       // void printBinary();
@@ -71,8 +69,8 @@ class Voxels
       unsigned int dimension; // Number of voxels for one side of the cube
       float voxelWidth; // The length of one voxel in world space
       unsigned int dataSize; // The number of uint64_t allocated to data
-      tbb::concurrent_unordered_map<unsigned int, unsigned int>* voxelTriangleIndexMap;
-      // tbb::mutex sMutex;   
+      tbb::concurrent_unordered_map<unsigned int, unsigned int>* voxelTriangleIndexMap; // maps morton index to triangle index in vector
+      tbb::mutex sMutex; // protect data being written into data buffer
 };
 
 // void binaryToString(uint64_t data, char* str);

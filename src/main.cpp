@@ -77,7 +77,7 @@ int main(int argc, char **argv)
    // Parse the file
    Parse::parse_file(file_name, &triangles, &planes, &camera, &lights);
 
-   AABB *meshBBox = triangles[0]->calculateBBox(); // testing with a single triangle first
+   AABB *meshBBox = triangles[0]->calculateBBox(); // testing with a single triangle first (check later: get bbox of all)
    SVO svo(numLevels, *meshBBox, &triangles); // Brent
 
    // BVH_Node::sort_objects_on_axis(&objects, 0, objects.size()-1, 0);

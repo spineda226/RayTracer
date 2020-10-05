@@ -6,6 +6,7 @@
 
 #include "Voxels.h"
 #include <iostream> // cout, cerr
+#include "MortonCode.h"
 
 /**
  * Instantiates and initializes the voxel data to be all empty (i.e. 0).
@@ -75,6 +76,7 @@ unsigned int Voxels::calculateDataSize(unsigned int levels)
 void Voxels::build(const std::vector<Triangle *> *triangles)
 {
    unsigned int stepSize = triangles->size() / 100;
+   std::cout << "Triangles: " << triangles->size() << std::endl;
    for (unsigned int i = 0; i < triangles->size(); ++i) {
       voxelizeTriangle(*triangles->at(i), i);
    }
@@ -126,35 +128,64 @@ void Voxels::voxelizeTriangle(const Triangle& triangle, unsigned int i)
    vec3 deltaP(voxelWidth, voxelWidth, voxelWidth); //The (maxs-mins) of the 
                                                     //voxel's bounding box
    
-   // for (x = minX; x <= maxX; x++)
-   // {
-   //    for (y = minY; y <= maxY; y++)
-   //    {
-   //       for (z = minZ; z <= maxZ; z++)
-   //       {
-   //          Vec3 p(boundingBox.mins.x + (x*voxelWidth),  //The mins of the 
-   //           boundingBox.mins.y + (y*voxelWidth),        //voxel's bounding box
-   //           boundingBox.mins.z + (z*voxelWidth) );
+   for (x = minX; x <= maxX; x++)
+   {
+      for (y = minY; y <= maxY; y++)
+      {
+         for (z = minZ; z <= maxZ; z++)
+         {
+            vec3 p(boundingBox.getMin().x + (x*voxelWidth),  //The mins of the 
+             boundingBox.getMin().y + (y*voxelWidth),        //voxel's bounding box
+             boundingBox.getMin().z + (z*voxelWidth) );
              
-   //          if (triangleAABBIntersect(triangle, p, deltaP))
-   //          {
-   //             unsigned int mortonIndex = mortonCode(x, y, z, levels);
-   //             glm::vec3 v0(triangle.v0.x,triangle.v0.y,triangle.v0.z);
-   //             glm::vec3 v1(triangle.v1.x,triangle.v1.y,triangle.v1.z);
-   //             glm::vec3 v2(triangle.v2.x,triangle.v2.y,triangle.v2.z);
+            if (triangle.triangleAABBIntersect(p, deltaP))
+            {
+               //std::cout << "Intersection! " << i << std::endl;
+               unsigned int mortonIndex = mortonCode(x, y, z, levels);
+               //glm::vec3 v0(triangle.v0.x,triangle.v0.y,triangle.v0.z);
+               //glm::vec3 v1(triangle.v1.x,triangle.v1.y,triangle.v1.z);
+               //glm::vec3 v2(triangle.v2.x,triangle.v2.y,triangle.v2.z);
 
-   //             // Calculate the normal of the triangle/plane
-   //             // glm::vec3 normal = glm::normalize( glm::cross(v1-v0, v2-v0) );
-   //             // cout << "Voxelization: (" << x << ", " << y << ", " << z << ") => mortonIndex: " << mortonIndex << endl;
-   //             // cout << "\tTriangle (" << i << ") " << endl;
-   //             // cout << "\tTriangle Normal: <" << normal.x << ", " << normal.y << ", " << normal.z << ">" << endl; 
-   //             // cout << endl;
+               // Calculate the normal of the triangle/plane
+               // glm::vec3 normal = glm::normalize( glm::cross(v1-v0, v2-v0) );
+               // cout << "Voxelization: (" << x << ", " << y << ", " << z << ") => mortonIndex: " << mortonIndex << endl;
+               // cout << "\tTriangle (" << i << ") " << endl;
+               // cout << "\tTriangle Normal: <" << normal.x << ", " << normal.y << ", " << normal.z << ">" << endl; 
+               // cout << endl;
 
-   //             voxelTriangleIndexMap->insert( std::make_pair<unsigned int,unsigned int>( (unsigned int)mortonIndex, (unsigned int)i ) );
+               voxelTriangleIndexMap->insert( std::make_pair<unsigned int,unsigned int>( (unsigned int)mortonIndex, (unsigned int)i ) );
 
-   //             set(x,y,z);
-   //          }
-   //       }
-   //    }
-   // }     
+               set(x,y,z);
+            }
+         }
+      }
+   }     
+}
+
+/**
+ * Sets the voxel at the given x, y and z values as filled 
+ *
+ * Tested: 9-3-2013 
+ * check later: mutex deprecated?
+ */
+void Voxels::set(unsigned int x, unsigned int y, unsigned int z)
+{
+   //If each individual voxel had an index, the voxeNumber is that index
+   unsigned int voxelNumber = mortonCode(x,y,z,levels);
+   //unsigned int voxelNumber = x + dimension*y + dimension*dimension*z;
+   
+   //dataIndex is the index into the uint64 array of the current voxel
+   unsigned int dataIndex = voxelNumber / 64;
+   
+   //bitIndex is the current voxel (represented by a bit) to set
+   unsigned int bitIndex =  voxelNumber % 64;
+   
+   //The mask used to set the voxel
+   uint64_t toOr = (1L << bitIndex);
+   
+   tbb::mutex::scoped_lock lock;
+   lock.acquire(sMutex);
+   //#pragma omp atomic
+   data[dataIndex] |= toOr; // sets the bitIndex bit 
+   lock.release();
 }
