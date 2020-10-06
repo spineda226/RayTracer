@@ -12,14 +12,15 @@
 //#include <easy/profiler.h>
 using namespace std;
 
-void Parse::parse_file(string filename, std::vector<Triangle *> *triangles, std::vector<Shape *> *planes, Camera **camera, std::vector<LightSource *> *lights)
+AABB *Parse::parse_file(string filename, std::vector<Triangle *> *triangles, std::vector<Shape *> *planes, Camera **camera, std::vector<LightSource *> *lights)
 {
 	//EASY_FUNCTION(profiler::colors::Magenta); // Magenta block with name "foo"
-
 	stringstream s;
 	string word;
 	string line;
 	ifstream infile(filename);
+	AABB *boundingBox = new AABB();
+	bool firstTri = true;
 	if (infile.fail())
 	{
 		cerr << "file not found: " << filename << endl;
@@ -43,8 +44,19 @@ void Parse::parse_file(string filename, std::vector<Triangle *> *triangles, std:
 		//	objects->push_back(Sphere::parse(infile, s));
 		//else if (strcmp(firstword, "plane") == 0)
 		//	planes->push_back(Plane::parse(infile, s));
-		else if (strcmp(firstword, "triangle") == 0)
-			triangles->push_back(Triangle::parse(infile, s));
+		else if (strcmp(firstword, "triangle") == 0) {
+			Triangle *t = Triangle::parse(infile, s);
+			if (firstTri) {
+				boundingBox->reset(t->getP1());
+				firstTri = false;
+			}
+			else {
+				boundingBox->addPoint(t->getP1());
+			}
+			boundingBox->addPoint(t->getP2());
+			boundingBox->addPoint(t->getP3());
+			triangles->push_back(t);
+		}
 		//else if (strcmp(firstword, "box") == 0)
 		//	objects->push_back(Box::parse(infile, s));
 		else
@@ -53,6 +65,7 @@ void Parse::parse_file(string filename, std::vector<Triangle *> *triangles, std:
 		}
 		word = "";		
 	}
+	return boundingBox;
 }
 
 vec3 Parse::Vector(stringstream & Stream)

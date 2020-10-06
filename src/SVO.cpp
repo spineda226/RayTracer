@@ -43,9 +43,9 @@ void SVO::build(const std::vector<Triangle *> *triangles)
    auto diff = end - start;
    cout << "\t\tTime Voxelization: " << chrono::duration <double, milli> (diff).count() << " ms" << endl;
 
-   // auto svoStartTime = chrono::steady_clock::now();
-   // uint64_t* leafVoxelData = leafVoxels->data;
-   // unsigned int numLeafs = leafVoxels->dataSize;
+   auto svoStartTime = chrono::steady_clock::now();
+   uint64_t* leafVoxelData = leafVoxels->getData();
+   unsigned int numLeafs = leafVoxels->getDataSize();
 
    // voxelTriangleIndexMap = leafVoxels->voxelTriangleIndexMap;
    
