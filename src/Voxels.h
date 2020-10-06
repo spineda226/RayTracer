@@ -47,6 +47,8 @@ class Voxels
       // Getters
       uint64_t *getData() const { return data; }
       unsigned int getDataSize() const { return dataSize;}
+      tbb::concurrent_unordered_map<unsigned int, unsigned int>* getVoxelTriangleIndexMap() const { return voxelTriangleIndexMap; }
+
 
       unsigned int calculateDataSize(unsigned int levels);
       void build(const std::vector<Triangle *> *triangles);

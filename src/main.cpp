@@ -62,7 +62,7 @@ int main(int argc, char **argv)
       file_name = argv[6];
    }
 
-   unsigned int numLevels = 3; // Brent
+   unsigned int numLevels = 4; // Brent
    
    // Timer
    struct timespec start, finish;
