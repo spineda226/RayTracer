@@ -38,8 +38,8 @@ class SVO
 		unsigned long size; // Total number of voxels if the SVO was full: 8**numLevels
     unsigned int dimension; // Number of voxels for one side of the cube: 2**numLevels
     float voxelWidth; // The length of one voxel in world space: width / dimension
-    void** levels; // Array of SVONode*'s that correspond to the levels of the SVO with 0 as root
-    unsigned int* levelSizes;
+    void** levels; // Array of SVONode*'s that correspond to the levels of the SVO with 0 as root (last level )
+    unsigned int* levelSizes; 
     tbb::concurrent_unordered_map<unsigned int, unsigned int>* voxelTriangleIndexMap;
     bool isNodeNotEmpty(SVONode *node);
     SVONode* root;

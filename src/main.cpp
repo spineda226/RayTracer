@@ -38,20 +38,25 @@ using namespace glm;
 int g_width, g_height, test_x, test_y;
 int testMode = 0;
 string file_name;
+unsigned int numLevels = 4;
 
 int main(int argc, char **argv)
 {
    //EASY_PROFILER_ENABLE;
 
-   if(argc != 4 and argc != 7) 
+   if(argc != 5 and argc != 7) 
    {
-      cout << "Usage: ./raytrace <width> <height> filename" << endl;
+      cout << "Usage: ./raytrace <width> <height> filename levels" << endl;
       return 0;
    }
-   if (argc == 4) {
+   if (argc == 5) {
       g_width = atoi(argv[1]);
       g_height = atoi(argv[2]);
       file_name = argv[3];
+      numLevels = atoi(argv[4]);
+      if (numLevels <= 3) {
+         numLevels = 4;
+      }
    }
    else if (argc == 7) {
       testMode = 1;
@@ -61,8 +66,8 @@ int main(int argc, char **argv)
       test_y = atoi(argv[5]);
       file_name = argv[6];
    }
-
-   unsigned int numLevels = 4; // Brent
+   cout << "Num Levels: " << numLevels << endl;
+   //unsigned int numLevels = 5; // Brent
    
    // Timer
    struct timespec start, finish;
@@ -76,8 +81,6 @@ int main(int argc, char **argv)
 
    // Parse the file
    AABB *meshBBox = Parse::parse_file(file_name, &triangles, &planes, &camera, &lights);
-
-   //AABB *meshBBox = triangles[0]->calculateBBox(); // testing with a single triangle first (check later: get bbox of all)
    SVO svo(numLevels, *meshBBox, &triangles); // Brent
 
    // BVH_Node::sort_objects_on_axis(&objects, 0, objects.size()-1, 0);

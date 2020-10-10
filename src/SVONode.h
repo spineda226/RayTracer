@@ -15,7 +15,7 @@ class SVONode
    public:
    		SVONode();
    		~SVONode();
-   		void* childPointers[8];
+   		void* childPointers[8]; 
 
    		bool operator< ( const SVONode & val ) const;
    		bool operator!= ( const SVONode & other ) const;

@@ -68,7 +68,7 @@ class Voxels
       // unsigned long getSize() const;
 
    private:
-      uint64_t *data;
+      uint64_t *data; // pointer to the first uint64_t stored on the heap (there is a block of them contiguously)
       AABB boundingBox;
       unsigned int levels;
       unsigned long size; // Total number of voxels 

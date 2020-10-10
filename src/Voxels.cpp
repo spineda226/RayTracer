@@ -21,7 +21,7 @@ Voxels::Voxels(const unsigned int numLevels, AABB &boundingBox, const std::vecto
    dataSize(0)
 {
    dataSize = calculateDataSize(levels); // calaculate the number of uint64 needed for leaves
-   data = new uint64_t[dataSize](); // dynamic memory on the heap
+   data = new uint64_t[dataSize](); // dynamic memory on the heap | data is a ptr to first element of the block
    
    if (data == NULL) {
        std::string err("\nAllocation failed for data\n");
