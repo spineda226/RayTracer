@@ -8,6 +8,53 @@
 //#include <easy/profiler.h>
 using namespace std;
 
+void raytrace_svo(int g_width, int g_height, AABB &boundingBox, const std::vector<Triangle *> *triangles,
+                  SVO &svo, const Camera &camera,
+                  const std::vector<LightSource *> &lights)
+{
+   //create an image
+   auto image = make_shared<Image>(g_width, g_height);
+   
+   // Camera basis vectors
+   vec3 u, v, w;
+   u = camera.getRight(); // not normalized to account for aspect ratio 4:3
+   v = camera.getUp(); // v is the up vector
+   w = normalize(camera.getLoc() - camera.getLookAt()); // w is the opposite of where the camera is looking
+
+   // Cast one ray per pixel
+   // Line from the eye e to a point on the screen s: p(t) = e + t(s-e)
+   // s = e + us * u + vs * v + ws * w
+   for (int i = 0; i < g_width; ++i)
+   {
+      for (int j = 0; j < g_height; ++j)
+      {
+         //printf("Pixel %d, %d\n", i, j);
+         // Calculate the viewing ray for pixel i,j
+         float U_s = -0.5 + (i+0.5)/g_width;
+         float V_s = -0.5 + (j+0.5)/g_height;
+         float W_s = -1; // near plane is one unit in front of the camera
+         vec3 d = normalize(U_s*u + V_s*v + W_s*w); // d = P_w - C_0 (direction of the viewRay)
+
+         Ray viewRay(camera.getLoc(), d);
+
+         float t = 0.0f;
+         vec3 normal;
+         if (svo.intersect(viewRay, t, normal)) {
+            vec3 total_color = 255.f*vec3(1, 1, 1);  
+            //cout << total_color.x << endl;
+            unsigned int red = min(255, (unsigned int)std::round(total_color.x));
+            unsigned int green = min(255, (unsigned int)std::round(total_color.y));
+            unsigned int blue = min(255, (unsigned int)std::round(total_color.z));   
+            image->setPixel(i, j , red, green, blue);  
+         }
+         else // else color it background color
+            image->setPixel(i, j, 0, 0, 0);
+      }
+   }
+   //write out the image
+   image->writeToFile("out.png");  
+}
+
 Ray& createReflect(const Ray &incident)
 {
    vec3 d = normalize(incident.getDir());

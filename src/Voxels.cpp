@@ -73,9 +73,11 @@ unsigned int Voxels::calculateDataSize(unsigned int levels)
  * Builds the volume of voxels from triangles
  * check later: parallelization with mutex
  */
+// voxelize each triangle
 void Voxels::build(const std::vector<Triangle *> *triangles)
 {
-   unsigned int stepSize = triangles->size() / 100;
+   //unsigned int stepSize = triangles->size() / 100;
+
    std::cout << "Triangles: " << triangles->size() << std::endl;
    for (unsigned int i = 0; i < triangles->size(); ++i) {
       voxelizeTriangle(*triangles->at(i), i);
@@ -108,8 +110,8 @@ void Voxels::build(const std::vector<Triangle *> *triangles)
  */
 void Voxels::voxelizeTriangle(const Triangle& triangle, unsigned int i)
 {
-   vec3 triMins(triangle.getMins());
-   vec3 triMaxs(triangle.getMaxs());
+   vec3 triMins(triangle.getMins()); // gets min coordinates of the triangle
+   vec3 triMaxs(triangle.getMaxs()); // gets max coordiantes of the triangle
    
    //Calculate the indexes into the voxel
    unsigned int minX = (triMins.x - boundingBox.getMin().x) / voxelWidth;

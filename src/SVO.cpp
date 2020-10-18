@@ -5,6 +5,7 @@
 #include "SVO.h"
 #include <iostream> // cerr
 #include "Voxels.h"
+#include "MortonCode.h"
 
 /**
  * Instantiates and initializes the SVO.
@@ -27,7 +28,7 @@ SVO::SVO(const unsigned int numLevels, AABB &boundingBox, const std::vector<Tria
    voxelWidth = (boundingBox.getMax().x - boundingBox.getMin().x) / dimension; // width of one voxel
    // Array of void* | has the -1 because the last two levels are uint64s
    levels = new void*[numLevels-2]; // has the -1 because the last two levels are uint64's  | check later: should this be -2?
-   levelSizes = new unsigned int[numLevels-1]();
+   levelSizes = new unsigned int[numLevels-2]();
    build(triangles);
 }
 
@@ -183,4 +184,177 @@ string SVO::getMemorySize(unsigned int size)
    }
 
    return to_string(lastSize) + units[i-1];
+}
+
+/**
+ * Returns a boolean indicating whether the node's leaf at the ith bit is set.
+ *
+ * Tested: 1-27-2014 
+ */
+bool SVO::isLeafSet(uint64_t* node, unsigned int i)
+{
+   uint64_t leaf = (uint64_t) *node;
+   uint64_t toAnd = (1L << i);
+   return (leaf & toAnd) > 0; 
+}
+
+/**
+ * Returns a boolean indicating whether the node's child is set.
+ *
+ * Tested: 1-16-2015 
+ */
+bool SVO::isChildSet(SVONode *node, unsigned int i)
+{
+   return node->childPointers[i] != NULL;
+}
+
+
+/**
+ * Returns a boolean indicating whether the node's child is set.
+ *
+ * Tested: 
+ */
+// bool SVO::isChildSet(void* node, unsigned int i)
+// {
+//    uint64_t toAnd = 1L << i;
+//    uint64_t mask = *((uint64_t*) node);
+//    //cout << "\t\t(" << mask <<  " & " << toAnd << ") = " << (mask | toAnd) << endl;
+//    return (mask & toAnd) != 0;
+// }
+
+/**
+ * Returns whether the ray provided intersects the DAG and t the distance along the ray
+ *
+ * Tested: 
+ */
+bool SVO::intersect(const Ray& ray, float& t, vec3& normal)
+{
+   vec3 bbMins = boundingBox.getMin();
+   vec3 bbMaxs = boundingBox.getMax();
+
+   vec3 mins(bbMins.x, bbMins.y, bbMins.z);
+   vec3 maxs(bbMaxs.x, bbMaxs.y, bbMaxs.z);
+   AABB aabb(mins, maxs);
+   return intersect(ray, t, root, 0, aabb, normal);
+}
+
+/**
+ * Resursive intersection method that returns whether the ray provided intersects the DAG and t the
+ * distance along the ray.
+ *
+ * Tested: 
+ */
+bool SVO::intersect(const Ray& ray, float& t, SVONode* node, unsigned int level, AABB aabb, vec3& normal)
+{
+   //Child values by index based on morton encoding
+   vec3 childOffsets[8] = { 
+      glm::vec3(0, 0, 0),
+      glm::vec3(1, 0, 0),
+      glm::vec3(0, 1, 0),
+      glm::vec3(1, 1, 0),
+      glm::vec3(0, 0, 1),
+      glm::vec3(1, 0, 1),
+      glm::vec3(0, 1, 1),
+      glm::vec3(1, 1, 1) };
+
+
+   vec3 mins = aabb.getMin();
+   vec3 maxs = aabb.getMax();
+   vec3 uselessNormal;
+   uint64_t uselessMoxelIndex;
+
+   //cout << "\tTraversing level " << level << endl;
+
+
+   // node is not a leaf node
+   if (level < numLevels-2)
+   {
+      // If the parent node is hit
+      // if (aabb.intersect(ray,t,uselessNormal,uselessMoxelIndex))
+      if (aabb.hit(ray, t))
+      {
+         //cout << "\tNode hit." << endl;
+         float newDim = (maxs.x - mins.x) / 2.0f;
+         bool isHit = false;
+         t = FLT_MAX;
+         uint64_t finalMoxelIndex;
+         
+         for (unsigned int i = 0; i < 8; i++)
+         {
+            if (isChildSet(node, i))
+            {
+               //cout << "\tChild " << i << " is set." << endl;
+               vec3 newMins(mins + (childOffsets[i] * newDim));
+               vec3 newMaxs(newMins.x + newDim, newMins.y + newDim, newMins.z + newDim);
+               AABB newAABB(newMins, newMaxs);
+               
+               //cout << "\tNew AABB: ";
+               //newAABB.print();
+               //cout <<  "\tIntersecting with child..." << endl << endl;
+               
+               // uint64_t emptyCount = getEmptyCount((void*)node,i);
+               // uint64_t levelIndexSum = getLevelIndexSum(level,i);
+               // uint64_t tempMoxelIndex = moxelIndex + levelIndexSum - emptyCount;
+
+               // cout << "Level " << level << ", child = " << i << endl;
+               // cout << "\ttempMoxelIndex = moxelIndex + levelIndexSum - emptyCount;" << endl;
+               // cout << "\t" << tempMoxelIndex << " = " << moxelIndex << " + " << levelIndexSum << " - " << emptyCount << endl << endl;
+
+               float newT;
+               
+               bool newHit = intersect(ray, newT, ((SVONode *)node->childPointers[i]), level+1, newAABB, normal);
+               //cout << "\n\tChild " << i << " hit: " << newHit << endl;
+
+               if (newHit && newT < t)
+               {
+                  t = newT;
+               }
+               isHit = isHit || newHit;
+            }  
+         }
+         return isHit;
+      }
+      // If the parent node is not hit
+      else
+      {
+         return false;
+      }
+   }
+   // node is a leaf node
+   else
+   {
+      float newDim = (maxs.x - mins.x) / 4.0f;
+      t = FLT_MAX;
+      bool isHit = false;
+
+      // Go through each of the 64 child nodes stored in the given leaf
+      for (unsigned int i = 0; i < 64; i++)
+      {
+         // If the leaf is not empty
+         if (isLeafSet((uint64_t*)node, i))
+         {
+            unsigned int x, y, z;
+            mortonCodeToXYZ((uint32_t)i, &x, &y, &z, 2);
+            vec3 offset((float)x,(float)y,(float)z);
+            vec3 newMins(mins + (offset * newDim));
+            vec3 newMaxs(newMins.x + newDim, newMins.y + newDim, newMins.z + newDim);
+            AABB newAABB(newMins, newMaxs);
+            float newT;
+            vec3 tempNormal;
+            bool newHit = newAABB.hit(ray,newT);
+
+            if (newHit && newT < t)
+            {
+               // cout << "Level " << level << ", child = " << i << endl;
+               // cout << "\ttempMoxelIndex = moxelIndex + levelIndexSum - emptyCount;" << endl;
+               // cout << "\t" << tempMoxelIndex << " = " << moxelIndex << " + " << levelIndexSum << " - " << emptyCount << endl << endl;
+
+               t = newT;
+               normal = tempNormal;
+            }
+            isHit = isHit || newHit;
+         }
+      }
+      return isHit;
+   }
 }

@@ -10,7 +10,7 @@
 
 #include "AABB.h"
 #include "SVONode.h"
-
+#include "Ray.h"
 //#include <vector>
 //#include <stdint.h>
 //#include <string>
@@ -32,6 +32,9 @@ class SVO
 
     void build(const std::vector<Triangle *> *triangles);
 
+    bool intersect(const Ray& ray, float& t, vec3& normal);
+    bool intersect(const Ray& ray, float& t, SVONode* node, unsigned int level, AABB aabb, vec3& normal);
+
 	private:
     unsigned int numLevels; // depth (root is level 0), needs to be at least 3 levels
 		AABB boundingBox;
@@ -45,14 +48,19 @@ class SVO
     SVONode* root;
     string getMemorySize(unsigned int size);
 
+    bool isLeafSet(uint64_t* node, unsigned int i);
+    bool isChildSet(SVONode *node, unsigned int i); // check later
+
+
+
 
 
       // void setVoxel(unsigned int x, unsigned int y, unsigned int z, uint64_t* activeNodes, uint64_t* nodes);
       // void voxelizeTriangle(const Triangle& triangle, uint64_t* activeNodes, uint64_t* nodes);
       // bool isSet(unsigned int x, unsigned int y, unsigned int z);
       
-      // bool isChildSet(SVONode *node, unsigned int i);
-      // bool isLeafSet(uint64_t* node, unsigned int i);
+
+
       // void printBinary();
       // void writeImages();
       // unsigned int countAtLevel(unsigned int level);

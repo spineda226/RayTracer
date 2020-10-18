@@ -14,6 +14,7 @@ class Ray
       glm::vec3 getDir() const { return direction; }
       const Intersection& getIntersection() const { return intersection; }
       void setIntersection(Intersection hit) { intersection = hit; }
+      glm::vec3 at(float t) const;
 
    private:
       glm::vec3 point;

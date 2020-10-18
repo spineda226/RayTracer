@@ -7,9 +7,12 @@
 #include "Camera.h"
 #include "LightSource.h"
 #include "BVH_Node.h"
+#include "SVO.h"
 
 #include <glm/glm.hpp>
 using namespace glm;
+
+void raytrace_svo(int g_width, int g_height, AABB &boundingBox, const std::vector<Triangle *> *triangles, SVO &svo, const Camera &camera, const std::vector<LightSource *> &lights);
 
 void raytrace(int g_width, int g_height, const BVH_Node &bvh, const std::vector<Shape *> &planes, const Camera &camera, const std::vector<LightSource *> &lights);
 vec3 recursive_raytrace(const BVH_Node &bvh, const std::vector<Shape *> &planes, const std::vector<LightSource *> &lights, Ray &ray, int iteration, float ratio=1, bool entering=true);

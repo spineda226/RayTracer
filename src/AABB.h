@@ -23,6 +23,11 @@ class AABB
       void square(); // look into this (why is square based on xlen)
 
       bool hit(const Ray &r);
+      bool hit(const Ray &r, float &t);
+      // bool intersect(const Ray& ray, float& t, vec3& normal, uint64_t moxelIndex);
+      bool inRange(float val, float min_val, float max_val);
+      bool contains(const vec3& val);
+
       static bool epsilonEquals(float const a, float const b, float const epsilon = 0.0001f);
 
       // friend: function defined outside the class but has access to private members

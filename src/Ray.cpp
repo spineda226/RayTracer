@@ -7,3 +7,8 @@ Ray::Ray(glm::vec3 point, glm::vec3 direction):
 {
 	intersection = *(new Intersection());
 }
+
+glm::vec3 Ray::at(float t) const
+{
+   return point + (direction * t);
+}
