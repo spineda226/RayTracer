@@ -75,20 +75,22 @@ int main(int argc, char **argv)
 
    // Scene Object List
    vector<Triangle *> triangles;
+   vector<Shape *> objects;
    vector<Shape *> planes;
    Camera *camera;
    vector<LightSource *> lights;
 
    // Parse the file
-   AABB *meshBBox = Parse::parse_file(file_name, &triangles, &planes, &camera, &lights);
+   AABB *meshBBox = Parse::parse_file(file_name, &triangles, &planes, &camera, &lights, &objects);
    SVO svo(numLevels, *meshBBox, &triangles); // Brent
 
    raytrace_svo(g_width, g_height, *meshBBox, &triangles, svo, *camera, lights);
-
+   
    // BVH_Node::sort_objects_on_axis(&objects, 0, objects.size()-1, 0);
    // BVH_Node *bvh = new BVH_Node();
    // cout << "Object size: " << objects.size() << endl;
    // bvh->recursive_tree_build(&objects, 0, objects.size()-1, 0);
+   // raytrace(g_width, g_height, *bvh, planes, *camera, lights);
    
    // //for (Shape *s : objects)
    // //{

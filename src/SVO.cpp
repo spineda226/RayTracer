@@ -10,9 +10,9 @@
 /**
  * Instantiates and initializes the SVO.
  */
-SVO::SVO(const unsigned int numLevels, AABB &boundingBox, const std::vector<Triangle *> *triangles)
+SVO::SVO(const unsigned int numLevels, const AABB &boundingBoxVal, const std::vector<Triangle *> *triangles)
  : numLevels(numLevels),
-   boundingBox(boundingBox),
+   boundingBox(boundingBoxVal),
    size(pow(8, numLevels)), 
    dimension(pow(2, numLevels)),
    voxelWidth(0)
@@ -270,14 +270,13 @@ bool SVO::intersect(const Ray& ray, float& t, SVONode* node, unsigned int level,
    if (level < numLevels-2)
    {
       // If the parent node is hit
-      // if (aabb.intersect(ray,t,uselessNormal,uselessMoxelIndex))
+      //if (aabb.intersect(ray, t, uselessNormal))
       if (aabb.hit(ray, t))
       {
          //cout << "\tNode hit." << endl;
          float newDim = (maxs.x - mins.x) / 2.0f;
          bool isHit = false;
          t = FLT_MAX;
-         uint64_t finalMoxelIndex;
          
          for (unsigned int i = 0; i < 8; i++)
          {
@@ -302,7 +301,7 @@ bool SVO::intersect(const Ray& ray, float& t, SVONode* node, unsigned int level,
 
                float newT;
                
-               bool newHit = intersect(ray, newT, ((SVONode *)node->childPointers[i]), level+1, newAABB, normal);
+               bool newHit = intersect(ray, newT, (SVONode *)node->childPointers[i], level+1, newAABB, normal);
                //cout << "\n\tChild " << i << " hit: " << newHit << endl;
 
                if (newHit && newT < t)
@@ -341,6 +340,7 @@ bool SVO::intersect(const Ray& ray, float& t, SVONode* node, unsigned int level,
             AABB newAABB(newMins, newMaxs);
             float newT;
             vec3 tempNormal;
+            //bool newHit = newAABB.intersect(ray,newT, tempNormal);
             bool newHit = newAABB.hit(ray,newT);
 
             if (newHit && newT < t)

@@ -12,7 +12,8 @@
 //#include <easy/profiler.h>
 using namespace std;
 
-AABB *Parse::parse_file(string filename, std::vector<Triangle *> *triangles, std::vector<Shape *> *planes, Camera **camera, std::vector<LightSource *> *lights)
+AABB *Parse::parse_file(string filename, std::vector<Triangle *> *triangles, std::vector<Shape *> *planes,
+	    Camera **camera, std::vector<LightSource *> *lights, std::vector<Shape *> *objects)
 {
 	//EASY_FUNCTION(profiler::colors::Magenta); // Magenta block with name "foo"
 	stringstream s;
@@ -56,6 +57,7 @@ AABB *Parse::parse_file(string filename, std::vector<Triangle *> *triangles, std
 			boundingBox->addPoint(t->getP2());
 			boundingBox->addPoint(t->getP3());
 			triangles->push_back(t);
+			objects->push_back(t);
 		}
 		//else if (strcmp(firstword, "box") == 0)
 		//	objects->push_back(Box::parse(infile, s));

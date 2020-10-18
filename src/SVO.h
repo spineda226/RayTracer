@@ -27,7 +27,7 @@ using namespace glm;
 class SVO
 {
   public:
-    SVO(const unsigned int numLevels, AABB& boundingBox, const std::vector<Triangle *> *triangles);
+    SVO(const unsigned int numLevels, const AABB& boundingBoxVal, const std::vector<Triangle *> *triangles);
 		~SVO() {};
 
     void build(const std::vector<Triangle *> *triangles);

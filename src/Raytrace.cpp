@@ -43,8 +43,8 @@ void raytrace_svo(int g_width, int g_height, AABB &boundingBox, const std::vecto
             vec3 total_color = 255.f*vec3(1, 1, 1);  
             //cout << total_color.x << endl;
             unsigned int red = min(255, (unsigned int)std::round(total_color.x));
-            unsigned int green = min(255, (unsigned int)std::round(total_color.y));
-            unsigned int blue = min(255, (unsigned int)std::round(total_color.z));   
+            unsigned int green = min(0, (unsigned int)std::round(total_color.y));
+            unsigned int blue = min(0, (unsigned int)std::round(total_color.z));   
             image->setPixel(i, j , red, green, blue);  
          }
          else // else color it background color

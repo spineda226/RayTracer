@@ -41,7 +41,7 @@
 class Voxels
 {
    public:
-      Voxels(const unsigned int numLevels, AABB &boundingBox, const std::vector<Triangle *> *triangles);
+      Voxels(const unsigned int numLevels, const AABB &boundingBoxVal, const std::vector<Triangle *> *triangles);
       ~Voxels();
 
       // Getters

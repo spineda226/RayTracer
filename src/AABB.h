@@ -24,7 +24,8 @@ class AABB
 
       bool hit(const Ray &r);
       bool hit(const Ray &r, float &t);
-      // bool intersect(const Ray& ray, float& t, vec3& normal, uint64_t moxelIndex);
+      bool intersect(const Ray& ray, float& t, vec3& normal);
+
       bool inRange(float val, float min_val, float max_val);
       bool contains(const vec3& val);
 

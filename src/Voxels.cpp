@@ -11,9 +11,9 @@
 /**
  * Instantiates and initializes the voxel data to be all empty (i.e. 0).
  */
-Voxels::Voxels(const unsigned int numLevels, AABB &boundingBox, const std::vector<Triangle *> *triangles)
+Voxels::Voxels(const unsigned int numLevels, const AABB &boundingBoxVal, const std::vector<Triangle *> *triangles)
  : data(0), 
-   boundingBox(boundingBox),
+   boundingBox(boundingBoxVal),
    levels(numLevels),
    size(pow(8, numLevels)), 
    dimension(pow(2, numLevels)),
@@ -31,6 +31,7 @@ Voxels::Voxels(const unsigned int numLevels, AABB &boundingBox, const std::vecto
 
    boundingBox.square(); // check later -- is this needed? we call this in SVO constructor too
    std::cout << "Voxels constructor boundingBox: " << boundingBox;
+
    voxelWidth = (boundingBox.getMax().x - boundingBox.getMin().x) / dimension;
    
    std::cout << "Number of 64bit ints allocated: " << dataSize << "\n";
@@ -77,7 +78,7 @@ unsigned int Voxels::calculateDataSize(unsigned int levels)
 void Voxels::build(const std::vector<Triangle *> *triangles)
 {
    //unsigned int stepSize = triangles->size() / 100;
-
+   std::cout << "Voxels constructor boundingBox Max: " << boundingBox.getMax().z;
    std::cout << "Triangles: " << triangles->size() << std::endl;
    for (unsigned int i = 0; i < triangles->size(); ++i) {
       voxelizeTriangle(*triangles->at(i), i);
@@ -120,7 +121,10 @@ void Voxels::voxelizeTriangle(const Triangle& triangle, unsigned int i)
    unsigned int maxY = (triMaxs.y - boundingBox.getMin().y + 0.5) / voxelWidth;
    unsigned int minZ = (triMins.z - boundingBox.getMin().z) / voxelWidth;
    unsigned int maxZ = (triMaxs.z - boundingBox.getMin().z + 0.5) / voxelWidth;
-   
+   std::cout << "boundgin Box:" << boundingBox << std::endl;
+   std::cout << "triMaxZ: " << triMaxs.z << " bbMinz" << boundingBox.getMin().z  << std::endl;
+   std::cout << "MaxZ: " << maxZ << std::endl;
+   std::cout << "Voxel Width: " << voxelWidth << std::endl;
    //Deal with floating point error
    maxX = (maxX >= dimension) ? (dimension-1) : maxX;
    maxY = (maxY >= dimension) ? (dimension-1) : maxY; 
