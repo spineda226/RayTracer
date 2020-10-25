@@ -270,8 +270,8 @@ bool SVO::intersect(const Ray& ray, float& t, SVONode* node, unsigned int level,
    if (level < numLevels-2)
    {
       // If the parent node is hit
-      //if (aabb.intersect(ray, t, uselessNormal))
-      if (aabb.hit(ray, t))
+      if (aabb.intersect(ray, t, uselessNormal)) // does same thing as my hit
+      //if (aabb.hit(ray, t))
       {
          //cout << "\tNode hit." << endl;
          float newDim = (maxs.x - mins.x) / 2.0f;
@@ -340,8 +340,8 @@ bool SVO::intersect(const Ray& ray, float& t, SVONode* node, unsigned int level,
             AABB newAABB(newMins, newMaxs);
             float newT;
             vec3 tempNormal;
-            //bool newHit = newAABB.intersect(ray,newT, tempNormal);
-            bool newHit = newAABB.hit(ray,newT);
+            bool newHit = newAABB.intersect(ray,newT, tempNormal);
+            //bool newHit = newAABB.hit(ray,newT);
 
             if (newHit && newT < t)
             {

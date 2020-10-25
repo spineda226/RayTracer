@@ -7,6 +7,7 @@
 #include "Voxels.h"
 #include <iostream> // cout, cerr
 #include "MortonCode.h"
+#include <sstream> // ostringstream
 
 /**
  * Instantiates and initializes the voxel data to be all empty (i.e. 0).
@@ -77,8 +78,7 @@ unsigned int Voxels::calculateDataSize(unsigned int levels)
 // voxelize each triangle
 void Voxels::build(const std::vector<Triangle *> *triangles)
 {
-   //unsigned int stepSize = triangles->size() / 100;
-   std::cout << "Voxels constructor boundingBox Max: " << boundingBox.getMax().z;
+   unsigned int stepSize = triangles->size() / 100;
    std::cout << "Triangles: " << triangles->size() << std::endl;
    for (unsigned int i = 0; i < triangles->size(); ++i) {
       voxelizeTriangle(*triangles->at(i), i);
@@ -87,10 +87,10 @@ void Voxels::build(const std::vector<Triangle *> *triangles)
    // tbb::atomic<unsigned int> progress = 0;
    // tbb::mutex sm;
 
-   // tbb::parallel_for((unsigned int)0, (unsigned int)triangles.size(), [&](unsigned int i) {
+   // tbb::parallel_for((unsigned int)0, (unsigned int)triangles->size(), [&](unsigned int i) {
 
    //    tbb::mutex::scoped_lock lock;
-   //    voxelizeTriangle(triangles[i], i);
+   //    voxelizeTriangle(*triangles->at(i), i);
 
    //    progress.fetch_and_increment();
 
@@ -98,8 +98,8 @@ void Voxels::build(const std::vector<Triangle *> *triangles)
    //    {
          
    //       lock.acquire(sm);
-   //       float percentDone = (((float) progress) / ( (float)triangles.size() )) * 100.0f;
-   //       cerr << setprecision(3) << "Voxelization: " << percentDone << "%" << endl;
+   //       float percentDone = (((float) progress) / ( (float)triangles->size() )) * 100.0f;
+   //       std::cerr << std::setprecision(3) << "Voxelization: " << percentDone << "%" << std::endl;
    //       lock.release();
    //    }
       
@@ -116,24 +116,25 @@ void Voxels::voxelizeTriangle(const Triangle& triangle, unsigned int i)
    
    //Calculate the indexes into the voxel
    unsigned int minX = (triMins.x - boundingBox.getMin().x) / voxelWidth;
-   unsigned int maxX = (triMaxs.x - boundingBox.getMin().x + 0.5) / voxelWidth;
+   unsigned int maxX = (triMaxs.x - boundingBox.getMin().x + 1) / voxelWidth;
    unsigned int minY = (triMins.y - boundingBox.getMin().y) / voxelWidth;
-   unsigned int maxY = (triMaxs.y - boundingBox.getMin().y + 0.5) / voxelWidth;
+   unsigned int maxY = (triMaxs.y - boundingBox.getMin().y + 1) / voxelWidth;
    unsigned int minZ = (triMins.z - boundingBox.getMin().z) / voxelWidth;
-   unsigned int maxZ = (triMaxs.z - boundingBox.getMin().z + 0.5) / voxelWidth;
-   std::cout << "boundgin Box:" << boundingBox << std::endl;
-   std::cout << "triMaxZ: " << triMaxs.z << " bbMinz" << boundingBox.getMin().z  << std::endl;
-   std::cout << "MaxZ: " << maxZ << std::endl;
-   std::cout << "Voxel Width: " << voxelWidth << std::endl;
+   unsigned int maxZ = (triMaxs.z - boundingBox.getMin().z + 1) / voxelWidth;
+   // std::cout << "boundgin Box:" << boundingBox << std::endl;
+   // std::cout << "triMaxZ: " << triMaxs.z << " bbMinz" << boundingBox.getMin().z  << std::endl;
+   // std::cout << "MaxZ: " << maxZ << std::endl;
+   // std::cout << "Voxel Width: " << voxelWidth << std::endl;
    //Deal with floating point error
    maxX = (maxX >= dimension) ? (dimension-1) : maxX;
    maxY = (maxY >= dimension) ? (dimension-1) : maxY; 
-   maxZ = (maxZ >= dimension) ? (dimension-1) : maxZ;
+   maxZ = (maxZ >= dimension) ? (dimension-1) : maxZ; 
+   //std::cout << "MaxX: " << maxX << " MaxY: " << maxY << " MaxZ: " << maxZ << std::endl;
    
    unsigned int x, y, z;
    vec3 deltaP(voxelWidth, voxelWidth, voxelWidth); //The (maxs-mins) of the 
                                                     //voxel's bounding box
-   
+   //std::cout << " boundingBox: " << boundingBox;
    for (x = minX; x <= maxX; x++)
    {
       for (y = minY; y <= maxY; y++)
@@ -144,7 +145,8 @@ void Voxels::voxelizeTriangle(const Triangle& triangle, unsigned int i)
              boundingBox.getMin().y + (y*voxelWidth),        //voxel's bounding box
              boundingBox.getMin().z + (z*voxelWidth) );
              
-            if (triangle.triangleAABBIntersect(p, deltaP))
+            //if (triangle.triangleAABBIntersect(p, deltaP))
+            if (triangle.myAABBTest(p, deltaP))
             {
                //std::cout << "Intersection! " << i << std::endl;
                unsigned int mortonIndex = mortonCode(x, y, z, levels);
@@ -166,6 +168,26 @@ void Voxels::voxelizeTriangle(const Triangle& triangle, unsigned int i)
          }
       }
    }     
+}
+
+/**
+ * Return the set of 64 voxels (i.e. an 64 bit int or int64_t) that are the voxels 
+ * at the index i.
+ *
+ * Tested: 9-3-2013 
+ */
+uint64_t& Voxels::operator[](unsigned int i)
+{
+   if (i >= dataSize)
+   {
+      std::string err = "\nIndex out of range in Voxels::operator[] with an index of ";
+      std::ostringstream convert;
+      convert << i;
+      err += convert.str();
+      std::cerr << err;
+      throw std::out_of_range(err);
+   }
+   return data[i];
 }
 
 /**

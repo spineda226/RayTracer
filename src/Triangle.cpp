@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sstream>
 #include <stdlib.h> //strtof
+#define EPSILON 0.001
 
 Triangle::Triangle(vec3 p1, vec3 p2, vec3 p3, vec3 color, properties *finish) :
    p1(p1), p2(p2), p3(p3), Shape(color, finish)
@@ -118,7 +119,7 @@ AABB *Triangle::calculateBBox()
 /* Taken from Brent Williams */
 const vec3 Triangle::getMins() const 
 {
-   vec3 mins(p1);
+   vec3 mins = vec3(p1.x, p1.y, p1.z);
    
    if (p2.x < mins.x)
       mins.x = p2.x;
@@ -140,7 +141,7 @@ const vec3 Triangle::getMins() const
 /* Taken from Brent Williams */
 const vec3 Triangle::getMaxs() const
 {
-   vec3 maxs(p1);
+   vec3 maxs = vec3(p1.x, p1.y, p1.z);
    
    if (p2.x > maxs.x)
       maxs.x = p2.x;
@@ -159,10 +160,252 @@ const vec3 Triangle::getMaxs() const
    return maxs;
 }
 
-/** Taken from Brent Williams
+/** 
  * Tests whether the triangle intersects the given axis aligned bounding box (represented by a 
  * minimum corner p and a maximum corner p + deltaP).
  */
+//https://gdbooks.gitbooks.io/3dcollisions/content/Chapter4/aabb-triangle.html
+bool Triangle::myAABBTest(vec3 &p, vec3 &deltaP) const {
+   // Get the triangle points as vectors
+   vec3 v0 = p1;
+   vec3 v1 = p2;
+   vec3 v2 = p3;
+
+   // Convert AABB to center-extents form
+   vec3 c = (p + deltaP/vec3(2.0f));///vec3(2);
+   //std::cout << deltaP.x;
+   vec3 e = deltaP/vec3(2.0f); // should I divide this by 2?
+
+   // Translate the triangle as conceptually moving the AABB to origin
+   // This is the same as we did with the point in triangle test
+   v0 -= c;
+   v1 -= c;
+   v2 -= c;
+
+   // Compute the edge vectors of the triangle  (ABC)
+   // That is, get the lines between the points as vectors
+   vec3 f0 = v1 - v0; // B - A
+   vec3 f1 = v2 - v1; // C - B
+   vec3 f2 = v0 - v2; // A - C
+
+   // Compute the face normals of the AABB, because the AABB
+   // is at center, and of course axis aligned, we know that 
+   // it's normals are the X, Y and Z axis.
+   vec3 u0 = vec3(1.0f, 0.0f, 0.0f);
+   vec3 u1 = vec3(0.0f, 1.0f, 0.0f);
+   vec3 u2 = vec3(0.0f, 0.0f, 1.0f);
+
+   // There are a total of 13 axis to test!
+
+   // We first test against 9 axis, these axis are given by
+   // cross product combinations of the edges of the triangle
+   // and the edges of the AABB. You need to get an axis testing
+   // each of the 3 sides of the AABB against each of the 3 sides
+   // of the triangle. The result is 9 axis of seperation
+   // https://awwapp.com/b/umzoc8tiv/
+
+   // Compute the 9 axis
+   vec3 axis_u0_f0 = cross(u0, f0);
+   vec3 axis_u0_f1 = cross(u0, f1);
+   vec3 axis_u0_f2 = cross(u0, f2);
+
+   vec3 axis_u1_f0 = cross(u1, f0);
+   vec3 axis_u1_f1 = cross(u1, f1);
+   vec3 axis_u1_f2 = cross(u2, f2);
+
+   vec3 axis_u2_f0 = cross(u2, f0);
+   vec3 axis_u2_f1 = cross(u2, f1);
+   vec3 axis_u2_f2 = cross(u2, f2);
+
+   // Testing axis: axis_u0_f0
+   // Project all 3 vertices of the triangle onto the Seperating axis
+   float p_0 = dot(v0, axis_u0_f0);
+   float p_1 = dot(v1, axis_u0_f0);
+   float p_2 = dot(v2, axis_u0_f0);
+   // Project the AABB onto the seperating axis
+   // We don't care about the end points of the prjection
+   // just the length of the half-size of the AABB
+   // That is, we're only casting the extents onto the 
+   // seperating axis, not the AABB center. We don't
+   // need to cast the center, because we know that the
+   // aabb is at origin compared to the triangle!
+   float r = e.x * abs(dot(u0, axis_u0_f0)) +
+                e.y * abs(dot(u1, axis_u0_f0)) +
+                e.z * abs(dot(u2, axis_u0_f0));
+   // Now do the actual test, basically see if either of
+   // the most extreme of the triangle points intersects r
+   // You might need to write Min & Max functions that take 3 arguments
+   if (std::max(-std::max(p_0, std::max(p_1, p_2)), std::min(p_0, std::min(p_1, p_2))) > r) {
+      // This means BOTH of the points of the projected triangle
+      // are outside the projected half-length of the AABB
+      // Therefore the axis is seperating and we can exit
+      return false;
+   }
+   // Testing axis: axis_u0_f1
+   // Project all 3 vertices of the triangle onto the Seperating axis
+   p_0 = dot(v0, axis_u0_f1);
+   p_1 = dot(v1, axis_u0_f1);
+   p_2 = dot(v2, axis_u0_f1);
+   r = e.x * abs(dot(u0, axis_u0_f1)) +
+      e.y * abs(dot(u1, axis_u0_f1)) +
+                e.z * abs(dot(u2, axis_u0_f1));
+   if (std::max(-std::max(p_0, std::max(p_1, p_2)), std::min(p_0, std::min(p_1, p_2))) > r) {
+      return false;
+   }
+
+   // Testing axis: axis_u0_f2
+   // Project all 3 vertices of the triangle onto the Seperating axis
+   p_0 = dot(v0, axis_u0_f2);
+   p_1 = dot(v1, axis_u0_f2);
+   p_2 = dot(v2, axis_u0_f2);
+   r = e.x * abs(dot(u0, axis_u0_f2)) +
+                e.y * abs(dot(u1, axis_u0_f2)) +
+                e.z * abs(dot(u2, axis_u0_f2));
+   if (std::max(-std::max(p_0, std::max(p_1, p_2)), std::min(p_0, std::min(p_1, p_2))) > r) {
+      return false;
+   }
+
+   // Testing axis: axis_u1_f0
+   // Project all 3 vertices of the triangle onto the Seperating axis
+   p_0 = dot(v0, axis_u1_f0);
+   p_1 = dot(v1, axis_u1_f0);
+   p_2 = dot(v2, axis_u1_f0);
+   r = e.x * abs(dot(u0, axis_u1_f0)) +
+                e.y * abs(dot(u1, axis_u1_f0)) +
+                e.z * abs(dot(u2, axis_u1_f0));
+   if (std::max(-std::max(p_0, std::max(p_1, p_2)), std::min(p_0, std::min(p_1, p_2))) > r) {
+      return false;
+   }
+
+   // Testing axis: axis_u1_f1
+   // Project all 3 vertices of the triangle onto the Seperating axis
+   p_0 = dot(v0, axis_u1_f1);
+   p_1 = dot(v1, axis_u1_f1);
+   p_2 = dot(v2, axis_u1_f1);
+   r = e.x * abs(dot(u0, axis_u1_f1)) +
+                e.y * abs(dot(u1, axis_u1_f1)) +
+                e.z * abs(dot(u2, axis_u1_f1));
+   if (std::max(-std::max(p_0, std::max(p_1, p_2)), std::min(p_0, std::min(p_1, p_2))) > r) {
+      return false;
+   }
+
+   // Testing axis: axis_u1_f2
+   // Project all 3 vertices of the triangle onto the Seperating axis
+   p_0 = dot(v0, axis_u1_f2);
+   p_1 = dot(v1, axis_u1_f2);
+   p_2 = dot(v2, axis_u1_f2);
+   r = e.x * abs(dot(u0, axis_u1_f2)) +
+                e.y * abs(dot(u1, axis_u1_f2)) +
+                e.z * abs(dot(u2, axis_u1_f2));
+   if (std::max(-std::max(p_0, std::max(p_1, p_2)), std::min(p_0, std::min(p_1, p_2))) > r) {
+      return false;
+   }
+
+   // Testing axis: axis_u2_f0
+   // Project all 3 vertices of the triangle onto the Seperating axis
+   p_0 = dot(v0, axis_u2_f0);
+   p_1 = dot(v1, axis_u2_f0);
+   p_2 = dot(v2, axis_u2_f0);
+   r = e.x * abs(dot(u0, axis_u2_f0)) +
+                e.y * abs(dot(u1, axis_u2_f0)) +
+                e.z * abs(dot(u2, axis_u2_f0));
+   if (std::max(-std::max(p_0, std::max(p_1, p_2)), std::min(p_0, std::min(p_1, p_2))) > r) {
+      return false;
+   }
+
+   // Testing axis: axis_u2_f1
+   // Project all 3 vertices of the triangle onto the Seperating axis
+   p_0 = dot(v0, axis_u2_f1);
+   p_1 = dot(v1, axis_u2_f1);
+   p_2 = dot(v2, axis_u2_f1);
+   r = e.x * abs(dot(u0, axis_u2_f1)) +
+                e.y * abs(dot(u1, axis_u2_f1)) +
+                e.z * abs(dot(u2, axis_u2_f1));
+   if (std::max(-std::max(p_0, std::max(p_1, p_2)), std::min(p_0, std::min(p_1, p_2))) > r) {
+      return false;
+   }
+
+   // Testing axis: axis_u2_f2
+   // Project all 3 vertices of the triangle onto the Seperating axis
+   p_0 = dot(v0, axis_u2_f2);
+   p_1 = dot(v1, axis_u2_f2);
+   p_2 = dot(v2, axis_u2_f2);
+   r = e.x * abs(dot(u0, axis_u2_f2)) +
+                e.y * abs(dot(u1, axis_u2_f2)) +
+                e.z * abs(dot(u2, axis_u2_f2));
+   if (std::max(-std::max(p_0, std::max(p_1, p_2)), std::min(p_0, std::min(p_1, p_2))) > r) {
+      return false;
+   }
+
+   // Next, we have 3 face normals from the AABB
+   // for these tests we are conceptually checking if the bounding box
+   // of the triangle intersects the bounding box of the AABB
+   // that is to say, the seperating axis for all tests are axis aligned:
+   //vec3 axis1 = vec3(1, 0, 0);
+   //vec3 axis2 = vec3(0, 1, 0);
+   //vec3 axis3 = vec3(0, 0, 1);
+   //TODO: 3 SAT tests
+   // Do the SAT given the 3 primary axis of the AABB
+   // You already have vectors for this: u0, u1 & u2
+
+   // Testing axis: u0
+   // Project all 3 vertices of the triangle onto the Seperating axis
+   p_0 = dot(v0, u0);
+   p_1 = dot(v1, u0);
+   p_2 = dot(v2, u0);
+   r = e.x * abs(dot(u0, u0)) +
+                e.y * abs(dot(u1, u0)) +
+                e.z * abs(dot(u2, u0));
+   if (std::max(-std::max(p_0, std::max(p_1, p_2)), std::min(p_0, std::min(p_1, p_2))) > r) {
+      return false;
+   }
+
+   // Testing axis: u1
+   // Project all 3 vertices of the triangle onto the Seperating axis
+   p_0 = dot(v0, u1);
+   p_1 = dot(v1, u1);
+   p_2 = dot(v2, u1);
+   r = e.x * abs(dot(u0, u1)) +
+                e.y * abs(dot(u1, u1)) +
+                e.z * abs(dot(u2, u1));
+   if (std::max(-std::max(p_0, std::max(p_1, p_2)), std::min(p_0, std::min(p_1, p_2))) > r) {
+      return false;
+   }
+
+   // Testing axis: u2
+   // Project all 3 vertices of the triangle onto the Seperating axis
+   p_0 = dot(v0, u2);
+   p_1 = dot(v1, u2);
+   p_2 = dot(v2, u2);
+   r = e.x * abs(dot(u0, u2)) +
+                e.y * abs(dot(u1, u2)) +
+                e.z * abs(dot(u2, u2));
+   if (std::max(-std::max(p_0, std::max(p_1, p_2)), std::min(p_0, std::min(p_1, p_2))) > r) {
+      return false;
+   }
+
+   // Finally, we have one last axis to test, the face normal of the triangle
+   // We can get the normal of the triangle by crossing the first two line segments
+   vec3 triangleNormal = cross(f0, f1);
+   // Testing axis: triangleNormal
+   // Project all 3 vertices of the triangle onto the Seperating axis
+   p_0 = dot(v0, triangleNormal);
+   p_1 = dot(v1, triangleNormal);
+   p_2 = dot(v2, triangleNormal);
+   r = e.x * abs(dot(u0, triangleNormal)) +
+                e.y * abs(dot(u1, triangleNormal)) +
+                e.z * abs(dot(u2, triangleNormal));
+   if (std::max(-std::max(p_0, std::max(p_1, p_2)), std::min(p_0, std::min(p_1, p_2))) > r) {
+      return false;
+   }
+   // float plane_distance = dot(triangleNormal, v0);
+   // r = e.x * abs(triangleNormal.x) + e.y * abs(triangleNormal.y) + e.z * abs(triangleNormal.z);
+   // if (plane_distance > r)
+   //    return false;
+
+   return true;
+}
+
 bool Triangle::triangleAABBIntersect(vec3& p, vec3& deltaP) const
 {
    // Two requirements for intersection
@@ -176,6 +419,7 @@ bool Triangle::triangleAABBIntersect(vec3& p, vec3& deltaP) const
    float cz = 0.0f; 
    
    vec3 n(normalize(cross(p2-p1, p3-p1))); 
+
    float d1;
    float d2;
    vec3 v[3];

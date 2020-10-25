@@ -83,7 +83,6 @@ int main(int argc, char **argv)
    // Parse the file
    AABB *meshBBox = Parse::parse_file(file_name, &triangles, &planes, &camera, &lights, &objects);
    SVO svo(numLevels, *meshBBox, &triangles); // Brent
-
    raytrace_svo(g_width, g_height, *meshBBox, &triangles, svo, *camera, lights);
    
    // BVH_Node::sort_objects_on_axis(&objects, 0, objects.size()-1, 0);

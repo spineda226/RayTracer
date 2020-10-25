@@ -253,7 +253,7 @@ bool AABB::intersect(const Ray& ray, float& t, vec3& normal)
       }
       else if(ray.getDir()[i] > 0) // CULL BACK FACE
       {
-         tVals[i] = ( min[i] - ray.getPoint()[i] ) / ray.getPoint()[i];
+         tVals[i] = ( min[i] - ray.getPoint()[i] ) / ray.getDir()[i];
          
          // If the ray direction is positive, it will hit the more negative AABB side which makes 
          // the normal point in the negative direction

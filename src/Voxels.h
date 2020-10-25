@@ -19,7 +19,6 @@
 // #include <stdexcept>
 // #include <string>
 // #include <vector>
-// #include <sstream>
 // #include <sys/stat.h>
 // #include <sys/types.h>
 // #include <iomanip>
@@ -35,7 +34,7 @@
 #include <tbb/concurrent_unordered_map.h>
 #include "tbb/mutex.h"
 // #include "tbb/atomic.h"
-// #include "tbb/tbb.h"
+#include "tbb/tbb.h"
 
 
 class Voxels
@@ -63,7 +62,7 @@ class Voxels
       // void writeVoxelCache(std::string fileName);
       // std::string getFileNameFromPath(std::string fileName);
       
-      // uint64_t& operator[](unsigned int i);
+      uint64_t& operator[](unsigned int i);
       
       // unsigned long getSize() const;
 

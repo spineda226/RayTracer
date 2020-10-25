@@ -35,6 +35,7 @@ class Triangle : public Shape
 
       static Triangle *parse(std::ifstream &infile, std::stringstream &s);
       bool triangleAABBIntersect(vec3& p, vec3& deltaP) const;
+      bool myAABBTest(vec3& p, vec3& deltaP) const;
 
    private:
       vec3 p1, p2, p3;
