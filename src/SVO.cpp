@@ -208,6 +208,19 @@ bool SVO::isChildSet(SVONode *node, unsigned int i)
    return node->childPointers[i] != NULL;
 }
 
+uint64_t SVO::getLevelIndexSum(unsigned int level, unsigned int index)
+{
+   uint64_t sum = 0;
+   uint64_t perChild = 1;
+
+   for (unsigned int i = 0; i < (numLevels - level - 1); i++)
+   {
+      perChild *= 8;
+   }
+   sum = perChild * index;
+
+   return sum;
+}
 
 /**
  * Returns a boolean indicating whether the node's child is set.
@@ -227,7 +240,7 @@ bool SVO::isChildSet(SVONode *node, unsigned int i)
  *
  * Tested: 
  */
-bool SVO::intersect(const Ray& ray, float& t, vec3& normal)
+bool SVO::intersect(const Ray& ray, float& t, vec3& normal, uint64_t& voxelIndex)
 {
    vec3 bbMins = boundingBox.getMin();
    vec3 bbMaxs = boundingBox.getMax();
@@ -235,7 +248,7 @@ bool SVO::intersect(const Ray& ray, float& t, vec3& normal)
    vec3 mins(bbMins.x, bbMins.y, bbMins.z);
    vec3 maxs(bbMaxs.x, bbMaxs.y, bbMaxs.z);
    AABB aabb(mins, maxs);
-   return intersect(ray, t, root, 0, aabb, normal);
+   return intersect(ray, t, root, 0, aabb, normal, voxelIndex);
 }
 
 /**
@@ -244,7 +257,7 @@ bool SVO::intersect(const Ray& ray, float& t, vec3& normal)
  *
  * Tested: 
  */
-bool SVO::intersect(const Ray& ray, float& t, SVONode* node, unsigned int level, AABB aabb, vec3& normal)
+bool SVO::intersect(const Ray& ray, float& t, SVONode* node, unsigned int level, AABB aabb, vec3& normal, uint64_t& voxelIndex)
 {
    //Child values by index based on morton encoding
    vec3 childOffsets[8] = { 
@@ -261,10 +274,9 @@ bool SVO::intersect(const Ray& ray, float& t, SVONode* node, unsigned int level,
    vec3 mins = aabb.getMin();
    vec3 maxs = aabb.getMax();
    vec3 uselessNormal;
-   uint64_t uselessMoxelIndex;
+   uint64_t finalVoxelIndex = 0;
 
    //cout << "\tTraversing level " << level << endl;
-
 
    // node is not a leaf node
    if (level < numLevels-2)
@@ -277,6 +289,7 @@ bool SVO::intersect(const Ray& ray, float& t, SVONode* node, unsigned int level,
          float newDim = (maxs.x - mins.x) / 2.0f;
          bool isHit = false;
          t = FLT_MAX;
+         //finalVoxelIndex = 0;
          
          for (unsigned int i = 0; i < 8; i++)
          {
@@ -291,26 +304,28 @@ bool SVO::intersect(const Ray& ray, float& t, SVONode* node, unsigned int level,
                //newAABB.print();
                //cout <<  "\tIntersecting with child..." << endl << endl;
                
-               // uint64_t emptyCount = getEmptyCount((void*)node,i);
-               // uint64_t levelIndexSum = getLevelIndexSum(level,i);
-               // uint64_t tempMoxelIndex = moxelIndex + levelIndexSum - emptyCount;
+               //uint64_t emptyCount = getEmptyCount((void*)node,i);
+               uint64_t levelIndexSum = getLevelIndexSum(level,i);
+               uint64_t tempVoxelIndex = voxelIndex + levelIndexSum;
 
                // cout << "Level " << level << ", child = " << i << endl;
-               // cout << "\ttempMoxelIndex = moxelIndex + levelIndexSum - emptyCount;" << endl;
-               // cout << "\t" << tempMoxelIndex << " = " << moxelIndex << " + " << levelIndexSum << " - " << emptyCount << endl << endl;
+               // cout << "\ttempMoxelIndex = moxelIndex + levelIndexSum;" << endl;
+               // cout << "\t" << tempVoxelIndex << " = " << voxelIndex << " + " << levelIndexSum << endl << endl;
 
-               float newT;
+               float newT = 0.0f;
                
-               bool newHit = intersect(ray, newT, (SVONode *)node->childPointers[i], level+1, newAABB, normal);
+               bool newHit = intersect(ray, newT, (SVONode *)node->childPointers[i], level+1, newAABB, normal, tempVoxelIndex);
                //cout << "\n\tChild " << i << " hit: " << newHit << endl;
 
                if (newHit && newT < t)
                {
                   t = newT;
+                  finalVoxelIndex = tempVoxelIndex;
                }
                isHit = isHit || newHit;
-            }  
+            }
          }
+         voxelIndex = finalVoxelIndex;  
          return isHit;
       }
       // If the parent node is not hit
@@ -325,10 +340,12 @@ bool SVO::intersect(const Ray& ray, float& t, SVONode* node, unsigned int level,
       float newDim = (maxs.x - mins.x) / 4.0f;
       t = FLT_MAX;
       bool isHit = false;
+      //finalVoxelIndex = 0;
 
       // Go through each of the 64 child nodes stored in the given leaf
       for (unsigned int i = 0; i < 64; i++)
       {
+         //cout << "i: " << i << "\n";
          // If the leaf is not empty
          if (isLeafSet((uint64_t*)node, i))
          {
@@ -338,23 +355,67 @@ bool SVO::intersect(const Ray& ray, float& t, SVONode* node, unsigned int level,
             vec3 newMins(mins + (offset * newDim));
             vec3 newMaxs(newMins.x + newDim, newMins.y + newDim, newMins.z + newDim);
             AABB newAABB(newMins, newMaxs);
-            float newT;
+            float newT = 0.0f;
             vec3 tempNormal;
             bool newHit = newAABB.intersect(ray,newT, tempNormal);
             //bool newHit = newAABB.hit(ray,newT);
 
+            //uint64_t emptyCount = getLeafNodeEmptyCount( *((uint64_t*)node), i);
+            uint64_t levelIndexSum = i; // Beacause at the last 2 levels it is just the # to the left of it which in this case is the index within the uint64_t
+            uint64_t tempVoxelIndex = voxelIndex + levelIndexSum;
+
             if (newHit && newT < t)
             {
                // cout << "Level " << level << ", child = " << i << endl;
-               // cout << "\ttempMoxelIndex = moxelIndex + levelIndexSum - emptyCount;" << endl;
-               // cout << "\t" << tempMoxelIndex << " = " << moxelIndex << " + " << levelIndexSum << " - " << emptyCount << endl << endl;
+               // cout << "\ttempVoxelIndex = voxelIndex + levelIndexSum;" << endl;
+               // cout << "\t" << tempVoxelIndex << " = " << voxelIndex << " + " << levelIndexSum  << endl << endl;
 
                t = newT;
                normal = tempNormal;
+               finalVoxelIndex = tempVoxelIndex;
             }
             isHit = isHit || newHit;
          }
       }
+      voxelIndex = finalVoxelIndex;
       return isHit;
    }
+}
+
+/**
+ * gets the voxel at the given x, y and z values (return 0 or 1)
+ *
+ * Tested: 9-3-2013 
+ * check later: mutex deprecated?
+ */
+int SVO::getData(unsigned int x, unsigned int y, unsigned int z)
+{
+   //If each individual voxel had an index, the voxeNumber is that index
+   unsigned int voxelNumber = mortonCode(x,y,z,numLevels);
+   //std::cout << "Voxelization Voxel Number: " << voxelNumber << "\n";
+   //unsigned int voxelNumber = x + dimension*y + dimension*dimension*z;
+   
+   //dataIndex is the index into the uint64 array of the current voxel
+   unsigned int dataIndex = voxelNumber / 64;
+   
+   //bitIndex is the current voxel (represented by a bit) to set
+   unsigned int bitIndex =  voxelNumber % 64;
+   
+   //The mask used to set the voxel
+   uint64_t toAnd = (1L << bitIndex);
+   uint64_t *data = (uint64_t *)levels[numLevels-2];
+   if (data[dataIndex] & toAnd) {
+      return 1;
+   }
+   return 0;
+   
+   // if (data[dataIndex] | )
+
+
+
+   // tbb::mutex::scoped_lock lock;
+   // lock.acquire(sMutex);
+   // //#pragma omp atomic
+   // data[dataIndex] |= toOr; // sets the bitIndex bit 
+   // lock.release();
 }

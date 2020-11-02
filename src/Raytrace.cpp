@@ -2,6 +2,7 @@
 #include "Intersection.h"
 #include "Image.h"
 #include <iostream>
+#include "MortonCode.h"
 #define max(a,b) ((a)>(b)?(a):(b))
 #define min(a,b) ((a)<(b)?(a):(b))
 #define EPSILON 0.001
@@ -38,13 +39,37 @@ void raytrace_svo(int g_width, int g_height, AABB &boundingBox, const std::vecto
          Ray viewRay(camera.getLoc(), d);
 
          float t = 0.0f;
-         vec3 normal;
-         if (svo.intersect(viewRay, t, normal)) {
-            vec3 total_color = 255.f*vec3(1, 1, 1);  
+         vec3 normal = vec3(0);
+         uint64_t voxelIndex = 0;
+         if (svo.intersect(viewRay, t, normal, voxelIndex)) {
+            //cout << "Normal: " << normal.x << " " << normal.y << " " << normal.z << "\n";
+            unsigned int x, y, z;
+            mortonCodeToXYZ((uint32_t)voxelIndex, &x, &y, &z, svo.getNumLevels());
+            int xComp, yComp, zComp;
+            //xComp = yComp = zComp = 1;
+            xComp = (1-svo.getData(x+1, y, z)) - (1-svo.getData(x-1, y, z));
+            yComp = (1-svo.getData(x, y+1, z)) - (1-svo.getData(x, y-1, z));
+            zComp = (1-svo.getData(x, y, z+1)) - (1-svo.getData(x, y, z-1));
+            normal = normalize(vec3(xComp, yComp, zComp));
+            // Diffuse
+            //float Kd = 0.5;
+            vec3 objectColor = vec3(1, 0, 1);
+            //vec3 pt = viewRay.getPoint() + viewRay.getDir()*t;
+            vec3 l = normalize(vec3(-100, 100, 100)); // light vector
+            float N_dot_L = max(0, dot(normalize(normal), l));
+            // std::cout << "NdotL: " << N_dot_L << "\n";
+            vec3 color = N_dot_L*objectColor + 0.1f*objectColor;
+            //color = vec3(1, 0, 1);
+            vec3 total_color = 255.f*color;  
+            //cout << "VI: " << voxelIndex << endl;
+           
+
+            //vec3 total_color = 255.f*vec3(1, 0, 0);
+
             //cout << total_color.x << endl;
             unsigned int red = min(255, (unsigned int)std::round(total_color.x));
             unsigned int green = min(0, (unsigned int)std::round(total_color.y));
-            unsigned int blue = min(0, (unsigned int)std::round(total_color.z));   
+            unsigned int blue = min(255, (unsigned int)std::round(total_color.z));   
             image->setPixel(i, j, red, green, blue);  
          }
          else // else color it background color

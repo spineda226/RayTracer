@@ -68,6 +68,7 @@ int main(int argc, char **argv)
    }
    cout << "Num Levels: " << numLevels << endl;
    //unsigned int numLevels = 5; // Brent
+
    
    // Timer
    struct timespec start, finish;
@@ -80,6 +81,10 @@ int main(int argc, char **argv)
    Camera *camera;
    vector<LightSource *> lights;
 
+   // bit testing
+   // uint64_t bits = (1L << 4); // 16
+   // cout << "bits: " << bits << endl;
+   // exit(EXIT_FAILURE);
    // Parse the file
    AABB *meshBBox = Parse::parse_file(file_name, &triangles, &planes, &camera, &lights, &objects);
    SVO svo(numLevels, *meshBBox, &triangles); // Brent

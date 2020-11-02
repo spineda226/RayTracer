@@ -32,8 +32,11 @@ class SVO
 
     void build(const std::vector<Triangle *> *triangles);
 
-    bool intersect(const Ray& ray, float& t, vec3& normal);
-    bool intersect(const Ray& ray, float& t, SVONode* node, unsigned int level, AABB aabb, vec3& normal);
+    bool intersect(const Ray& ray, float& t, vec3& normal, uint64_t& voxelIndex);
+    bool intersect(const Ray& ray, float& t, SVONode* node, unsigned int level, AABB aabb, vec3& normal, uint64_t& voxelIndex);
+    int getData(unsigned int x, unsigned int y, unsigned int z);
+    unsigned int getNumLevels() const { return numLevels; }
+
 
 	private:
     unsigned int numLevels; // depth (root is level 0), needs to be at least 3 levels
@@ -50,6 +53,7 @@ class SVO
 
     bool isLeafSet(uint64_t* node, unsigned int i);
     bool isChildSet(SVONode *node, unsigned int i); // check later
+    uint64_t getLevelIndexSum(unsigned int level, unsigned int index);
 
 
 

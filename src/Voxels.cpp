@@ -116,11 +116,11 @@ void Voxels::voxelizeTriangle(const Triangle& triangle, unsigned int i)
    
    //Calculate the indexes into the voxel
    unsigned int minX = (triMins.x - boundingBox.getMin().x) / voxelWidth;
-   unsigned int maxX = (triMaxs.x - boundingBox.getMin().x + 1) / voxelWidth;
+   unsigned int maxX = (triMaxs.x - boundingBox.getMin().x + 0) / voxelWidth;
    unsigned int minY = (triMins.y - boundingBox.getMin().y) / voxelWidth;
-   unsigned int maxY = (triMaxs.y - boundingBox.getMin().y + 1) / voxelWidth;
+   unsigned int maxY = (triMaxs.y - boundingBox.getMin().y + 0) / voxelWidth;
    unsigned int minZ = (triMins.z - boundingBox.getMin().z) / voxelWidth;
-   unsigned int maxZ = (triMaxs.z - boundingBox.getMin().z + 1) / voxelWidth;
+   unsigned int maxZ = (triMaxs.z - boundingBox.getMin().z + 0) / voxelWidth;
    // std::cout << "boundgin Box:" << boundingBox << std::endl;
    // std::cout << "triMaxZ: " << triMaxs.z << " bbMinz" << boundingBox.getMin().z  << std::endl;
    // std::cout << "MaxZ: " << maxZ << std::endl;
@@ -167,7 +167,26 @@ void Voxels::voxelizeTriangle(const Triangle& triangle, unsigned int i)
             }
          }
       }
-   }     
+   }
+
+   /* Morton Code Testing */
+   // minX = 0;
+   // maxX = dimension-1;
+   // minY = 0;
+   // maxY = dimension-1;
+   // minZ = 0;
+   // maxZ = dimension-1;
+   // for (x = minX; x <= maxX; x++)
+   // {
+   //    for (y = minY; y <= maxY; y++)
+   //    {
+   //       for (z = minZ; z <= maxZ; z++)
+   //       {
+   //          unsigned int mortonIndex = mortonCode(x, y, z, levels);
+   //          std::cout << x << " " << y << " " << z << ": " << mortonIndex << "\n";
+   //       }
+   //    }
+   // }
 }
 
 /**
@@ -200,6 +219,7 @@ void Voxels::set(unsigned int x, unsigned int y, unsigned int z)
 {
    //If each individual voxel had an index, the voxeNumber is that index
    unsigned int voxelNumber = mortonCode(x,y,z,levels);
+   //std::cout << "Voxelization Voxel Number: " << voxelNumber << "\n";
    //unsigned int voxelNumber = x + dimension*y + dimension*dimension*z;
    
    //dataIndex is the index into the uint64 array of the current voxel
