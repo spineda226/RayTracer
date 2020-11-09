@@ -30,6 +30,8 @@ SVO::SVO(const unsigned int numLevels, const AABB &boundingBoxVal, const std::ve
    levels = new void*[numLevels-2]; // has the -1 because the last two levels are uint64's  | check later: should this be -2?
    levelSizes = new unsigned int[numLevels-2]();
    build(triangles);
+
+
 }
 
 /**
@@ -50,7 +52,8 @@ void SVO::build(const std::vector<Triangle *> *triangles)
    unsigned int numLeafs = leafVoxels->getDataSize(); // A 2-level tree has one leaf
 
    voxelTriangleIndexMap = leafVoxels->getVoxelTriangleIndexMap();
-   
+   voxelNormalMap = leafVoxels->getVoxelNormalMap();
+
    std::cout << "levels: " << numLevels << "\n";
    std::cout << "Number of leaf nodes: " << numLeafs << "\n";
 

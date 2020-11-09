@@ -39,6 +39,7 @@ Voxels::Voxels(const unsigned int numLevels, const AABB &boundingBoxVal, const s
    std::cout << "sizeof(uint64_t) " << sizeof(uint64_t) << "\n";
 
    voxelTriangleIndexMap = new tbb::concurrent_unordered_map<unsigned int, unsigned int>();
+   voxelNormalMap = new tbb::concurrent_unordered_map<unsigned int, vec3>();
 
    // Not using a cache right now
    std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  NO VOXEL CACHE... VOXELIZING NOW  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
@@ -145,6 +146,7 @@ void Voxels::voxelizeTriangle(const Triangle& triangle, unsigned int i)
              boundingBox.getMin().y + (y*voxelWidth),        //voxel's bounding box
              boundingBox.getMin().z + (z*voxelWidth) );
              
+             // check later; if a voxel is already set do I still perform calculation?
             //if (triangle.triangleAABBIntersect(p, deltaP))
             if (triangle.myAABBTest(p, deltaP))
             {
@@ -160,8 +162,11 @@ void Voxels::voxelizeTriangle(const Triangle& triangle, unsigned int i)
                // cout << "\tTriangle (" << i << ") " << endl;
                // cout << "\tTriangle Normal: <" << normal.x << ", " << normal.y << ", " << normal.z << ">" << endl; 
                // cout << endl;
+               std::cout << "MI: " << mortonIndex << "\n";
 
                voxelTriangleIndexMap->insert( std::make_pair<unsigned int,unsigned int>( (unsigned int)mortonIndex, (unsigned int)i ) );
+               vec3 normal = glm::normalize( glm::cross(triangle.getP2() - triangle.getP1(), triangle.getP3()-triangle.getP1()));
+               voxelNormalMap->insert(std::make_pair((unsigned int)mortonIndex, normal));
 
                set(x,y,z);
             }

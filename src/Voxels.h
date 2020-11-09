@@ -47,6 +47,7 @@ class Voxels
       uint64_t *getData() const { return data; }
       unsigned int getDataSize() const { return dataSize;}
       tbb::concurrent_unordered_map<unsigned int, unsigned int>* getVoxelTriangleIndexMap() const { return voxelTriangleIndexMap; }
+      tbb::concurrent_unordered_map<unsigned int, vec3>* getVoxelNormalMap() const { return voxelNormalMap; }
 
 
       unsigned int calculateDataSize(unsigned int levels);
@@ -76,6 +77,9 @@ class Voxels
       unsigned int dataSize; // The number of uint64_t allocated to data
       tbb::concurrent_unordered_map<unsigned int, unsigned int>* voxelTriangleIndexMap; // maps morton index to triangle index in vector
       tbb::mutex sMutex; // protect data being written into data buffer
+
+      // Material
+      tbb::concurrent_unordered_map<unsigned int, vec3>* voxelNormalMap;
 };
 
 // void binaryToString(uint64_t data, char* str);

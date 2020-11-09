@@ -43,25 +43,28 @@ void raytrace_svo(int g_width, int g_height, AABB &boundingBox, const std::vecto
          uint64_t voxelIndex = 0;
          if (svo.intersect(viewRay, t, normal, voxelIndex)) {
             //cout << "Normal: " << normal.x << " " << normal.y << " " << normal.z << "\n";
+            /* Gradient Normals
             unsigned int x, y, z;
             mortonCodeToXYZ((uint32_t)voxelIndex, &x, &y, &z, svo.getNumLevels());
             int xComp, yComp, zComp;
-            //xComp = yComp = zComp = 1;
             xComp = (1-svo.getData(x+1, y, z)) - (1-svo.getData(x-1, y, z));
             yComp = (1-svo.getData(x, y+1, z)) - (1-svo.getData(x, y-1, z));
             zComp = (1-svo.getData(x, y, z+1)) - (1-svo.getData(x, y, z-1));
             normal = normalize(vec3(xComp, yComp, zComp));
             // Diffuse
-            //float Kd = 0.5;
             vec3 objectColor = vec3(1, 0, 1);
-            //vec3 pt = viewRay.getPoint() + viewRay.getDir()*t;
             vec3 l = normalize(vec3(-100, 100, 100)); // light vector
             float N_dot_L = max(0, dot(normalize(normal), l));
-            // std::cout << "NdotL: " << N_dot_L << "\n";
             vec3 color = N_dot_L*objectColor + 0.1f*objectColor;
-            //color = vec3(1, 0, 1);
             vec3 total_color = 255.f*color;  
-            //cout << "VI: " << voxelIndex << endl;
+            */
+            normal = svo.getVoxelNormalMap()->at(voxelIndex);
+            // Diffuse
+            vec3 objectColor = vec3(1, 0, 1);
+            vec3 l = normalize(vec3(-100, 100, 100)); // light vector
+            float N_dot_L = max(0, dot(normalize(normal), l));
+            vec3 color = N_dot_L*objectColor + 0.1f*objectColor;
+            vec3 total_color = 255.f*color;  
            
 
             //vec3 total_color = 255.f*vec3(1, 0, 0);

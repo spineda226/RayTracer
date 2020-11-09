@@ -14,7 +14,7 @@
 //#include <vector>
 //#include <stdint.h>
 //#include <string>
-//#include <unordered_map>
+#include <unordered_map>
 #include "tbb/concurrent_unordered_map.h"
 
 #include <chrono>
@@ -36,6 +36,7 @@ class SVO
     bool intersect(const Ray& ray, float& t, SVONode* node, unsigned int level, AABB aabb, vec3& normal, uint64_t& voxelIndex);
     int getData(unsigned int x, unsigned int y, unsigned int z);
     unsigned int getNumLevels() const { return numLevels; }
+    tbb::concurrent_unordered_map<unsigned int, vec3>* getVoxelNormalMap() const { return voxelNormalMap; }
 
 
 	private:
@@ -46,6 +47,7 @@ class SVO
     float voxelWidth; // The length of one voxel in world space: width / dimension
     void** levels; // Array of SVONode*'s that correspond to the levels of the SVO with 0 as root (last level )
     unsigned int* levelSizes; 
+
     tbb::concurrent_unordered_map<unsigned int, unsigned int>* voxelTriangleIndexMap;
     bool isNodeNotEmpty(SVONode *node);
     SVONode* root;
@@ -54,6 +56,9 @@ class SVO
     bool isLeafSet(uint64_t* node, unsigned int i);
     bool isChildSet(SVONode *node, unsigned int i); // check later
     uint64_t getLevelIndexSum(unsigned int level, unsigned int index);
+
+    // Material
+    tbb::concurrent_unordered_map<unsigned int, vec3>* voxelNormalMap;
 
 
 
