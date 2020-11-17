@@ -26,6 +26,7 @@
 #include "Raytrace.h"
 #include "Triangle.h"
 #include "SVO.h"
+#include "OBJFile.h"
 //#include <easy/profiler.h>
 
 // This allows you to skip the `std::` in front of C++ standard library
@@ -78,15 +79,23 @@ int main(int argc, char **argv)
    vector<Triangle *> triangles;
    vector<Shape *> objects;
    vector<Shape *> planes;
-   Camera *camera;
-   vector<LightSource *> lights;
 
-   // bit testing
-   // uint64_t bits = (1L << 4); // 16
-   // cout << "bits: " << bits << endl;
-   // exit(EXIT_FAILURE);
-   // Parse the file
-   AABB *meshBBox = Parse::parse_file(file_name, &triangles, &planes, &camera, &lights, &objects);
+
+   Camera *camera; 
+
+   vector<LightSource *> lights;
+   
+
+
+   // Parse the file POV
+   //AABB *meshBBox = Parse::parse_file(file_name, &triangles, &planes, &camera, &lights, &objects);
+
+   camera = new Camera(glm::vec3(0, 0, 32));
+   OBJFile objFile(file_name);
+   objFile.centerMesh();
+   AABB *meshBBox = objFile.getBoundingBox();
+   triangles = objFile.getTriangles();
+
    SVO svo(numLevels, *meshBBox, &triangles); // Brent
    raytrace_svo(g_width, g_height, *meshBBox, &triangles, svo, *camera, lights);
    

@@ -27,6 +27,15 @@ else()
   message(STATUS "TBB environment variable `TBB_INCLUDE_DIR` not found, TBB must be installed with the system")
 endif()
 
+# Add Assimp
+set(ASSIMP_INCLUDE_DIR "$ENV{ASSIMP_INCLUDE_DIR}")
+if (ASSIMP_INCLUDE_DIR)
+  include_directories(${ASSIMP_INCLUDE_DIR})
+  message(STATUS "ASSIMP environment variable found")
+else()
+  message(STATUS "ASSIMP environment variable `ASSIMP_INCLUDE_DIR` not found, ASSIMP must be installed with the system")
+endif()
+
 # Add GLM
 # Get the GLM environment variable. Since GLM is a header-only library, we
 # just need to add it to the include directory.
@@ -49,5 +58,5 @@ if(WIN32)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4996")
 else()
   # Enable all pedantic warnings.
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -pedantic -ltbb -O3")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -pedantic -ltbb -lassimp -g -O3")
 endif()

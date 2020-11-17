@@ -14,6 +14,7 @@ class Triangle : public Shape
 {
    public:
       Triangle(vec3 p1, vec3 p2, vec3 p3) : Shape(), p1(p1), p2(p2), p3(p3) {}
+      Triangle(vec3 p1, vec3 p2, vec3 p3, unsigned int mIdx) : Shape(), p1(p1), p2(p2), p3(p3), matIdx(mIdx) {}
       Triangle(vec3 p1, vec3 p2, vec3 p3, vec3 color, properties *finish);
       ~Triangle() {};
 
@@ -22,6 +23,10 @@ class Triangle : public Shape
       vec3 getP3() const { return p3; }
       const vec3 getMins() const;
       const vec3 getMaxs() const;
+
+      void updateP1(glm::vec3 p) { p1 = p1 + p; }
+      void updateP2(glm::vec3 p) { p2 = p2 + p; }
+      void updateP3(glm::vec3 p) { p3 = p3 + p; }
 
       float computeGamma(vec3 &p0, vec3 &d, float detA);
       float computeBeta(vec3 &p0, vec3 &d, float detA);
@@ -37,8 +42,13 @@ class Triangle : public Shape
       bool triangleAABBIntersect(vec3& p, vec3& deltaP) const;
       bool myAABBTest(vec3& p, vec3& deltaP) const;
 
+      void setColor(vec3 c) { color = c; }
+      vec3 getColor() const { return color; }
+
    private:
       vec3 p1, p2, p3;
+      vec3 color;
+      unsigned int matIdx;
 };
 
 float calcualteDeterminant(vec3 &row1, vec3 &row2, vec3 &row3);

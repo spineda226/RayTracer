@@ -58,12 +58,18 @@ void raytrace_svo(int g_width, int g_height, AABB &boundingBox, const std::vecto
             vec3 color = N_dot_L*objectColor + 0.1f*objectColor;
             vec3 total_color = 255.f*color;  
             */
+            if (svo.getVoxelNormalMap()->find(voxelIndex) == svo.getVoxelNormalMap()->end())
+            {
+               std::cerr << "Uh oh!!!!\n" << std::flush; 
+            }
             normal = svo.getVoxelNormalMap()->at(voxelIndex);
             // Diffuse
-            vec3 objectColor = vec3(1, 0, 1);
+            vec3 objectColor = triangles->at(svo.getTriangleMap()->at(voxelIndex))->getColor(); // vec3(1, 0, 1);
+
             vec3 l = normalize(vec3(-100, 100, 100)); // light vector
             float N_dot_L = max(0, dot(normalize(normal), l));
             vec3 color = N_dot_L*objectColor + 0.1f*objectColor;
+            //color = glm::vec3(1, 0, 1);
             vec3 total_color = 255.f*color;  
            
 
@@ -71,7 +77,7 @@ void raytrace_svo(int g_width, int g_height, AABB &boundingBox, const std::vecto
 
             //cout << total_color.x << endl;
             unsigned int red = min(255, (unsigned int)std::round(total_color.x));
-            unsigned int green = min(0, (unsigned int)std::round(total_color.y));
+            unsigned int green = min(255, (unsigned int)std::round(total_color.y));
             unsigned int blue = min(255, (unsigned int)std::round(total_color.z));   
             image->setPixel(i, j, red, green, blue);  
          }

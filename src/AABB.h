@@ -17,6 +17,11 @@ class AABB
       vec3 getMax() const { return max; }
       vec3 getCenter() const { return (min + max) * 0.5f; }
 
+      void updateMin(glm::vec3 translate) { min += translate; }
+      void updateMax(glm::vec3 translate) { max += translate; }
+      void setMin(glm::vec3 new_min) { min = new_min; }
+      void setMax(glm::vec3 new_max) { max = new_max;}
+
       void reset(vec3 pt);
       void addPoint(vec3 pt);
       void addBox(AABB other);

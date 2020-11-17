@@ -162,7 +162,7 @@ void Voxels::voxelizeTriangle(const Triangle& triangle, unsigned int i)
                // cout << "\tTriangle (" << i << ") " << endl;
                // cout << "\tTriangle Normal: <" << normal.x << ", " << normal.y << ", " << normal.z << ">" << endl; 
                // cout << endl;
-               std::cout << "MI: " << mortonIndex << "\n";
+               //std::cout << "MI: " << mortonIndex << "\n";
 
                voxelTriangleIndexMap->insert( std::make_pair<unsigned int,unsigned int>( (unsigned int)mortonIndex, (unsigned int)i ) );
                vec3 normal = glm::normalize( glm::cross(triangle.getP2() - triangle.getP1(), triangle.getP3()-triangle.getP1()));

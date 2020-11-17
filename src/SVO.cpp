@@ -27,8 +27,9 @@ SVO::SVO(const unsigned int numLevels, const AABB &boundingBoxVal, const std::ve
    boundingBox.square(); // turns bounding box into a cube with same side lengths
    voxelWidth = (boundingBox.getMax().x - boundingBox.getMin().x) / dimension; // width of one voxel
    // Array of void* | has the -1 because the last two levels are uint64s
-   levels = new void*[numLevels-2]; // has the -1 because the last two levels are uint64's  | check later: should this be -2?
-   levelSizes = new unsigned int[numLevels-2]();
+   levels = new void*[numLevels-1]; // has the -1 because the last two levels are uint64's
+   //| check later: should this be -2? -- later: no it should be -1
+   levelSizes = new unsigned int[numLevels-1]();
    build(triangles);
 
 
@@ -42,7 +43,7 @@ SVO::SVO(const unsigned int numLevels, const AABB &boundingBoxVal, const std::ve
 void SVO::build(const std::vector<Triangle *> *triangles)
 {
    auto start = chrono::steady_clock::now();
-   Voxels* leafVoxels = new Voxels(numLevels, boundingBox, triangles);
+   leafVoxels = new Voxels(numLevels, boundingBox, triangles);
    auto end = chrono::steady_clock::now();
    auto diff = end - start;
    cout << "\t\tTime Voxelization: " << chrono::duration <double, milli> (diff).count() << " ms" << endl;
@@ -118,7 +119,7 @@ void SVO::build(const std::vector<Triangle *> *triangles)
    
    // Set the root node
    prevLevelNodes = currLevelNodes;
-   root = new SVONode;
+   root = new SVONode(); // changed this steven
    levelSizes[currentLevel+1] = 0;
    for (int i = 0; i < 8; i++)
    {
@@ -316,7 +317,6 @@ bool SVO::intersect(const Ray& ray, float& t, SVONode* node, unsigned int level,
                // cout << "\t" << tempVoxelIndex << " = " << voxelIndex << " + " << levelIndexSum << endl << endl;
 
                float newT = 0.0f;
-               
                bool newHit = intersect(ray, newT, (SVONode *)node->childPointers[i], level+1, newAABB, normal, tempVoxelIndex);
                //cout << "\n\tChild " << i << " hit: " << newHit << endl;
 

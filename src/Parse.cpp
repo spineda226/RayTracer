@@ -56,6 +56,12 @@ AABB *Parse::parse_file(string filename, std::vector<Triangle *> *triangles, std
 			}
 			boundingBox->addPoint(t->getP2());
 			boundingBox->addPoint(t->getP3());
+			float low = 0.1;
+			float high = 1;
+			float r = (((double) rand())/(double)RAND_MAX)*(high-low)+low;
+			float g = (((double) rand())/(double)RAND_MAX)*(high-low)+low;
+			float b = (((double) rand())/(double)RAND_MAX)*(high-low)+low;
+			t->setColor(vec3(r, g, b));
 			triangles->push_back(t);
 			objects->push_back(t);
 		}

@@ -13,6 +13,7 @@
 #include "Ray.h"
 //#include <vector>
 //#include <stdint.h>
+#include "Voxels.h"
 //#include <string>
 #include <unordered_map>
 #include "tbb/concurrent_unordered_map.h"
@@ -37,6 +38,7 @@ class SVO
     int getData(unsigned int x, unsigned int y, unsigned int z);
     unsigned int getNumLevels() const { return numLevels; }
     tbb::concurrent_unordered_map<unsigned int, vec3>* getVoxelNormalMap() const { return voxelNormalMap; }
+    tbb::concurrent_unordered_map<unsigned int, unsigned int>* getTriangleMap() const { return voxelTriangleIndexMap; }
 
 
 	private:
@@ -59,6 +61,7 @@ class SVO
 
     // Material
     tbb::concurrent_unordered_map<unsigned int, vec3>* voxelNormalMap;
+    Voxels *leafVoxels;
 
 
 
