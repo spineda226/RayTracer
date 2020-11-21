@@ -29,7 +29,7 @@ using namespace glm;
 class SVO
 {
   public:
-    SVO(const unsigned int numLevels, const AABB& boundingBoxVal, const std::vector<Triangle *> *triangles);
+    SVO(const unsigned int numLevels, const AABB& boundingBoxVal, const std::vector<Triangle *> *triangles, std::vector<PhongMaterial> &materials);
 		~SVO() {};
 
     void build(const std::vector<Triangle *> *triangles);
@@ -40,7 +40,7 @@ class SVO
     unsigned int getNumLevels() const { return numLevels; }
     tbb::concurrent_unordered_map<unsigned int, ShadingData>* getVoxelNormalMap() const { return voxelNormalMap; }
     tbb::concurrent_unordered_map<unsigned int, unsigned int>* getTriangleMap() const { return voxelTriangleIndexMap; }
-
+    PhongMaterial getMaterial(unsigned int i) const { return materials[i]; }
 
 	private:
     unsigned int numLevels; // depth (root is level 0), needs to be at least 3 levels
@@ -63,6 +63,7 @@ class SVO
     // Material
     tbb::concurrent_unordered_map<unsigned int, ShadingData>* voxelNormalMap;
     Voxels *leafVoxels;
+    std::vector<PhongMaterial> materials;
 
 
 

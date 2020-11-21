@@ -10,12 +10,13 @@
 /**
  * Instantiates and initializes the SVO.
  */
-SVO::SVO(const unsigned int numLevels, const AABB &boundingBoxVal, const std::vector<Triangle *> *triangles)
+SVO::SVO(const unsigned int numLevels, const AABB &boundingBoxVal, const std::vector<Triangle *> *triangles, std::vector<PhongMaterial> &materials)
  : numLevels(numLevels),
    boundingBox(boundingBoxVal),
    size(pow(8, numLevels)), 
    dimension(pow(2, numLevels)),
-   voxelWidth(0)
+   voxelWidth(0),
+   materials(materials)
 {
    if (numLevels <= 2)
    {

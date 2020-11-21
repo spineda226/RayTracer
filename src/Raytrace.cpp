@@ -62,14 +62,18 @@ void raytrace_svo(int g_width, int g_height, AABB &boundingBox, const std::vecto
             {
                std::cerr << "Uh oh!!!!\n" << std::flush; 
             }
-            normal = (svo.getVoxelNormalMap()->at(voxelIndex)).getNormal();
+            normal = normalize((svo.getVoxelNormalMap()->at(voxelIndex)).getNormal());
             // Diffuse
-            vec3 objectColor = triangles->at(svo.getTriangleMap()->at(voxelIndex))->getColor(); // vec3(1, 0, 1);
+            //vec3 objectColor = triangles->at(svo.getTriangleMap()->at(voxelIndex))->getColor(); // vec3(1, 0, 1);
 
-            vec3 l = normalize(vec3(-100, 100, 100)); // light vector
-            float N_dot_L = max(0, dot(normalize(normal), l));
-            vec3 color = N_dot_L*objectColor + 0.1f*objectColor;
+            //vec3 l = normalize(vec3(-100, 100, 100)); // light vector
+            //float N_dot_L = max(0, dot(normalize(normal), l));
+            //vec3 color = N_dot_L*objectColor + 0.1f*objectColor;
             //color = glm::vec3(1, 0, 1);
+            
+            unsigned int matIdx = svo.getVoxelNormalMap()->at(voxelIndex).getMatIdx();
+            glm::vec3 hitPosition = viewRay.getPoint() + (t * viewRay.getDir());
+            vec3 color = svo.getMaterial(matIdx).calculateSurfaceColor(viewRay, hitPosition, normal);
             vec3 total_color = 255.f*color;  
            
 

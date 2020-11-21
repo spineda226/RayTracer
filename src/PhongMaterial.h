@@ -7,7 +7,7 @@
 #include <iostream> 
 #include <math.h>
 
-//#include "Ray.h"
+#include "Ray.h"
 
 class PhongMaterial
 {
@@ -19,7 +19,7 @@ class PhongMaterial
       PhongMaterial(const glm::vec3 ka, const glm::vec3 kd, const glm::vec3 ks, float ns) :
                     ka(ka), kd(kd), ks(ks), ns(ns) {}
       ~PhongMaterial() {};
-      //glm::vec3 calculateSurfaceColor(Ray ray, glm::vec3 hitPosition, glm::vec3 n);
+      glm::vec3 calculateSurfaceColor(Ray ray, glm::vec3 hitPosition, glm::vec3 n);
 };
 
 

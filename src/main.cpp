@@ -27,6 +27,7 @@
 #include "Triangle.h"
 #include "SVO.h"
 #include "OBJFile.h"
+#include "ShadingData.h"
 //#include <easy/profiler.h>
 
 // This allows you to skip the `std::` in front of C++ standard library
@@ -95,8 +96,8 @@ int main(int argc, char **argv)
    objFile.centerMesh();
    AABB *meshBBox = objFile.getBoundingBox();
    triangles = objFile.getTriangles();
-
-   SVO svo(numLevels, *meshBBox, &triangles); // Brent
+   vector<PhongMaterial> materials = objFile.getMaterials();
+   SVO svo(numLevels, *meshBBox, &triangles, materials); // Brent
    raytrace_svo(g_width, g_height, *meshBBox, &triangles, svo, *camera, lights);
    
    // BVH_Node::sort_objects_on_axis(&objects, 0, objects.size()-1, 0);
