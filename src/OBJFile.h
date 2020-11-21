@@ -17,7 +17,7 @@
 #include <string>
 
 #include "Triangle.h"
-//#include "PhongMaterial.hpp"
+#include "PhongMaterial.h"
 //#include "Face.hpp"
 #include "AABB.h"
 #include <assimp/Importer.hpp>      // C++ importer interface
@@ -33,7 +33,6 @@
 class OBJFile
 {   
    public:
-      //std::vector<PhongMaterial> materials;
       OBJFile(std::string fileNameVal);
       //const BoundingBox& getBoundingBox();
       //std::vector<Triangle>& getTriangles();
@@ -41,6 +40,7 @@ class OBJFile
       void centerMesh();
       AABB *getBoundingBox() const { return boundingBox; }
       std::vector<Triangle *> getTriangles() const { return triangles;}
+      std::vector<PhongMaterial> getMaterials() const { return materials; }
       void updateBoundingBox();
 
    private:
@@ -48,6 +48,7 @@ class OBJFile
       AABB *boundingBox;
       std::vector<Triangle *> triangles;
       void parse();
+      std::vector<PhongMaterial> materials;
 };
 
 #endif

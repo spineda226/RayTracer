@@ -35,6 +35,7 @@
 #include "tbb/mutex.h"
 // #include "tbb/atomic.h"
 #include "tbb/tbb.h"
+#include "ShadingData.h"
 
 
 class Voxels
@@ -47,7 +48,7 @@ class Voxels
       uint64_t *getData() const { return data; }
       unsigned int getDataSize() const { return dataSize;}
       tbb::concurrent_unordered_map<unsigned int, unsigned int>* getVoxelTriangleIndexMap() const { return voxelTriangleIndexMap; }
-      tbb::concurrent_unordered_map<unsigned int, vec3>* getVoxelNormalMap() const { return voxelNormalMap; }
+      tbb::concurrent_unordered_map<unsigned int, ShadingData>* getVoxelNormalMap() const { return voxelNormalMap; }
 
 
       unsigned int calculateDataSize(unsigned int levels);
@@ -79,7 +80,7 @@ class Voxels
       tbb::mutex sMutex; // protect data being written into data buffer
 
       // Material
-      tbb::concurrent_unordered_map<unsigned int, vec3>* voxelNormalMap;
+      tbb::concurrent_unordered_map<unsigned int, ShadingData>* voxelNormalMap;
 };
 
 // void binaryToString(uint64_t data, char* str);

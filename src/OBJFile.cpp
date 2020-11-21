@@ -111,8 +111,8 @@ void OBJFile::parse()
          ns = shininess / 4.0f; 
       }
 
-      //PhongMaterial material(ka,kd,ks,ns); commented out by Steve
-      //materials.push_back(material); commented out by Steve
+      PhongMaterial material(ka,kd,ks,ns); //commented out by Steve
+      materials.push_back(material); //commented out by Steve
 
       std::cout << std::endl;
       std::cout << "material " << i << ":\n";

@@ -44,6 +44,7 @@ class Triangle : public Shape
 
       void setColor(vec3 c) { color = c; }
       vec3 getColor() const { return color; }
+      unsigned int getMatIdx() const { return matIdx; }
 
    private:
       vec3 p1, p2, p3;

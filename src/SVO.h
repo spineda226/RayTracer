@@ -17,6 +17,7 @@
 //#include <string>
 #include <unordered_map>
 #include "tbb/concurrent_unordered_map.h"
+#include "ShadingData.h"
 
 #include <chrono>
 
@@ -37,7 +38,7 @@ class SVO
     bool intersect(const Ray& ray, float& t, SVONode* node, unsigned int level, AABB aabb, vec3& normal, uint64_t& voxelIndex);
     int getData(unsigned int x, unsigned int y, unsigned int z);
     unsigned int getNumLevels() const { return numLevels; }
-    tbb::concurrent_unordered_map<unsigned int, vec3>* getVoxelNormalMap() const { return voxelNormalMap; }
+    tbb::concurrent_unordered_map<unsigned int, ShadingData>* getVoxelNormalMap() const { return voxelNormalMap; }
     tbb::concurrent_unordered_map<unsigned int, unsigned int>* getTriangleMap() const { return voxelTriangleIndexMap; }
 
 
@@ -60,7 +61,7 @@ class SVO
     uint64_t getLevelIndexSum(unsigned int level, unsigned int index);
 
     // Material
-    tbb::concurrent_unordered_map<unsigned int, vec3>* voxelNormalMap;
+    tbb::concurrent_unordered_map<unsigned int, ShadingData>* voxelNormalMap;
     Voxels *leafVoxels;
 
 

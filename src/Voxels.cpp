@@ -8,6 +8,7 @@
 #include <iostream> // cout, cerr
 #include "MortonCode.h"
 #include <sstream> // ostringstream
+#include "ShadingData.h"
 
 /**
  * Instantiates and initializes the voxel data to be all empty (i.e. 0).
@@ -39,7 +40,7 @@ Voxels::Voxels(const unsigned int numLevels, const AABB &boundingBoxVal, const s
    std::cout << "sizeof(uint64_t) " << sizeof(uint64_t) << "\n";
 
    voxelTriangleIndexMap = new tbb::concurrent_unordered_map<unsigned int, unsigned int>();
-   voxelNormalMap = new tbb::concurrent_unordered_map<unsigned int, vec3>();
+   voxelNormalMap = new tbb::concurrent_unordered_map<unsigned int, ShadingData>();
 
    // Not using a cache right now
    std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  NO VOXEL CACHE... VOXELIZING NOW  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
@@ -164,9 +165,10 @@ void Voxels::voxelizeTriangle(const Triangle& triangle, unsigned int i)
                // cout << endl;
                //std::cout << "MI: " << mortonIndex << "\n";
 
-               voxelTriangleIndexMap->insert( std::make_pair<unsigned int,unsigned int>( (unsigned int)mortonIndex, (unsigned int)i ) );
+               voxelTriangleIndexMap->insert( std::make_pair<unsigned int, unsigned int>( (unsigned int)mortonIndex, (unsigned int)i ) );
                vec3 normal = glm::normalize( glm::cross(triangle.getP2() - triangle.getP1(), triangle.getP3()-triangle.getP1()));
-               voxelNormalMap->insert(std::make_pair((unsigned int)mortonIndex, normal));
+               unsigned int matIdx = triangle.getMatIdx();
+               voxelNormalMap->insert(std::make_pair((unsigned int)mortonIndex, ShadingData(normal, matIdx)));
 
                set(x,y,z);
             }

@@ -62,7 +62,7 @@ void raytrace_svo(int g_width, int g_height, AABB &boundingBox, const std::vecto
             {
                std::cerr << "Uh oh!!!!\n" << std::flush; 
             }
-            normal = svo.getVoxelNormalMap()->at(voxelIndex);
+            normal = (svo.getVoxelNormalMap()->at(voxelIndex)).getNormal();
             // Diffuse
             vec3 objectColor = triangles->at(svo.getTriangleMap()->at(voxelIndex))->getColor(); // vec3(1, 0, 1);
 
